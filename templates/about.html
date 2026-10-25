@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block title %}À propos | ThesisPulse — Excellence & Technologie{% endblock %}
+
+{% block content %}
+
+<div class="max-w-7xl mx-auto px-6 pt-24 absolute top-0 left-0 right-0 z-20 flex justify-between items-center">
+    <a href="/" class="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-xl backdrop-blur transition border border-white/10">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <span>Retour à l'accueil</span>
+    </a>
+</div>
+
+<section class="hero-pattern text-white pt-36 pb-20 text-center relative overflow-hidden">
+    <div class="max-w-4xl mx-auto px-6 relative z-10">
+        <span class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mb-4 border border-emerald-500/30">Architecture & Vision</span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">À propos de ThesisPulse</h1>
+        <p class="text-slate-300 text-lg max-w-2xl mx-auto font-light">Une plateforme conçue pour révolutionner la gestion des Projets de Fin d'Études (PFE) grâce à l'ingénierie logicielle de pointe et l'intelligence artificielle.</p>
+    </div>
+</section>
+
+<section class="py-20 bg-white">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div>
+            <span class="text-emerald-600 font-bold text-xs uppercase tracking-widest">Mission Institutionnelle</span>
+            <h2 class="text-3xl font-bold text-slate-900 mt-2 mb-6">Simplifier le cycle de vie académique des universités</h2>
+            <p class="text-slate-600 leading-relaxed mb-4">
+                ThesisPulse répond à une problématique majeure des établissements d'enseignement supérieur : la complexité administrative dans la gestion des sujets de stage, l'affectation des encadrants, le suivi rigoureux des rapports et la planification des soutenances.
+            </p>
+            <p class="text-slate-600 leading-relaxed">
+                En automatisant les tâches répétitives et en introduisant des mécanismes de décision basés sur l'IA, la plateforme garantit transparence, équité et efficacité pour les étudiants, les enseignants et l'administration.
+            </p>
+        </div>
+        <div class="bg-slate-900 text-white p-8 rounded-3xl shadow-xl border border-slate-800">
+            <h3 class="text-xl font-bold mb-4 flex items-center text-emerald-400">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                Les 4 Piliers Fondamentaux
+            </h3>
+            <ul class="space-y-3 text-sm text-slate-300">
+                <li class="flex items-center space-x-3">✅ <strong>Sécurité RBAC :</strong> Cloisonnement strict des rôles (Étudiant, Encadrant, Admin, Jury).</li>
+                <li class="flex items-center space-x-3">✅ <strong>SmartSujet :</strong> Évaluation prédictive par TAL / NLP.</li>
+                <li class="flex items-center space-x-3">✅ <strong>RAG & pgvector :</strong> Analyse intelligente et sémantique des documents PDF.</li>
+                <li class="flex items-center space-x-3">✅ <strong>Google OR-Tools :</strong> Optimisation des emplois du temps de soutenance.</li>
+            </ul>
+        </div>
+    </div>
+</section>
+
+
+<section class="py-20 bg-slate-50 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <span class="text-emerald-600 font-bold text-xs uppercase tracking-widest">Stack Technologique Avancée</span>
+            <h2 class="text-3xl font-bold text-slate-900 mt-2 mb-4">Sous le Capot : Architecture & Ingénierie</h2>
+            <p class="text-slate-600">Une implémentation robuste combinant des frameworks modernes et des technologies de pointe en IA et DevOps.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="text-3xl mb-4">🐍</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Python & Django 5.1</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Cœur de l'application web, gestion des migrations, ORM puissant et architecture modulaire hautement sécurisée.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="text-3xl mb-4">🧠</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">spaCy & HuggingFace</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Traitement automatique du langage naturel (TAL), analyse syntaxique française et embeddings vectoriels pour le RAG.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="text-3xl mb-4">🐘</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">PostgreSQL & pgvector</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Base de données relationnelle dopée par l'extension vectorielle pour l'indexation et la recherche de similarité sémantique.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200">
+                <div class="text-3xl mb-4">🐳</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Docker & Celery</h3>
+                <p class="text-xs text-slate-600 leading-relaxed">Conteneurisation stable de l'écosystème et file d'attente asynchrone pour le traitement lourd des documents en arrière-plan.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

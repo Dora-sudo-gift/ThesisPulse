@@ -1,0 +1,16 @@
+from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+from .models import User
+
+@admin.register(User)
+class CustomUserAdmin(UserAdmin):
+    model = User
+    
+    fieldsets = UserAdmin.fieldsets + (
+        ('Informations ThesisPulse (RBAC)', {'fields': ('role', 'is_jury_member', 'matricule', 'department')}),
+    )
+    add_fieldsets = UserAdmin.add_fieldsets + (
+        ('Informations ThesisPulse (RBAC)', {'fields': ('role', 'is_jury_member', 'matricule', 'department')}),
+    )
+    list_display = ['username', 'email', 'first_name', 'last_name', 'role', 'is_jury_member', 'is_staff']
+    list_filter = ['role', 'is_jury_member', 'department', 'is_staff']

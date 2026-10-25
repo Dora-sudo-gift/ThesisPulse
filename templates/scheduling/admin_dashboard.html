@@ -1,0 +1,1124 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard Administrateur | ThesisPulse{% endblock %}
+
+{% block content %}
+<div class="min-h-screen hero-pattern text-slate-100 flex relative overflow-x-hidden">
+
+    
+    <button id="openSidebarBtn" onclick="toggleSidebar()" class="fixed top-5 left-5 z-50 p-3 rounded-2xl bg-slate-900/85 backdrop-blur-xl text-emerald-400 hover:text-white hover:bg-emerald-600/30 shadow-2xl border border-white/15 transition-all duration-300 hidden items-center space-x-2 group">
+        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <span class="text-xs font-bold tracking-wider uppercase pr-1">Menu</span>
+    </button>
+
+    
+  
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-950/40 backdrop-blur-2xl border-r border-white/10 transition-transform duration-300 ease-in-out transform translate-x-0 flex flex-col shadow-2xl">
+        <div class="h-20 flex items-center justify-between px-6 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-white block">Console Maître</span>
+                    <span class="text-[10px] text-slate-400">Administration</span>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" title="Réduire la barre latérale" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+        </div>
+
+        <div class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+            <p class="px-3 text-[10px] uppercase tracking-wider font-bold text-emerald-400/80 mb-3">Rubriques Principales</p>
+            
+            <a href="#home" onclick="switchSection('home', event)" class="sidebar-link flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-emerald-500/25 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-lg">
+                <span class="text-base">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="#subjects" onclick="switchSection('subjects', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">📋</span>
+                    <span>Sujets</span>
+                </div>
+                <span id="sidebar-pending-badge" class="bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded-full {% if not pending_subjects and not total_subjects %}hidden{% endif %}">
+                    {{ pending_subjects|default:total_subjects }}
+                </span>
+            </a>
+            <a href="#students" onclick="switchSection('students', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">🎓</span>
+                    <span>Étudiants</span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono">{{ total_students|default:0 }}</span>
+            </a>
+            <a href="#supervisors" onclick="switchSection('supervisors', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">👨‍🏫</span>
+                    <span>Encadrants</span>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono">{{ total_supervisors|default:0 }}</span>
+            </a>
+            <a href="#calendar" onclick="switchSection('calendar', event)" class="sidebar-link flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <span class="text-base">📅</span>
+                <span>Calendrier</span>
+            </a>
+            <a href="#defense" onclick="switchSection('defense', event)" class="sidebar-link flex items-center space-x-3.5 px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <span class="text-base">⚙️</span>
+                <span>Soutenances</span>
+            </a>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-slate-950/60 space-y-3">
+            <div class="flex items-center space-x-3 px-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-700 flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-md shrink-0">
+                    {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-[10px] text-emerald-400 font-medium truncate">Administrateur</p>
+                </div>
+            </div>
+            <form action="{% url 'login' %}" method="post" class="w-full">
+                {% csrf_token %}
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-red-600/15 hover:from-rose-500/30 hover:to-red-600/30 text-rose-300 hover:text-white text-xs font-bold transition-all duration-200 border border-rose-500/25 hover:border-rose-500/50 flex items-center justify-center space-x-2 shadow-lg group">
+                    <svg class="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Se déconnecter</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div id="mainContent" class="flex-1 md:ml-72 p-6 lg:p-10 space-y-8 transition-all duration-300">
+
+
+        {% if messages %}
+            <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3 max-w-md w-full">
+                {% for message in messages %}
+                    <div class="toast-item glass-card p-4 rounded-2xl text-xs font-semibold shadow-2xl flex items-center justify-between border {% if message.tags == 'error' %}bg-red-950/90 text-red-200 border-red-500/40{% else %}bg-emerald-950/90 text-emerald-200 border-emerald-500/40{% endif %}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white ml-3 font-bold text-base">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const container = document.getElementById('toast-container');
+                    if (container) {
+                        container.style.transition = 'opacity 0.2s ease';
+                        container.style.opacity = '0';
+                        setTimeout(() => container.remove(), 500);
+                    }
+                }, 5000);
+            </script>
+        {% endif %}
+
+        
+        <div id="content-home" class="dashboard-section space-y-8">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-2xl backdrop-blur-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-2">Vue d'Ensemble</span>
+                    <h1 class="text-3xl font-extrabold text-white">Informations Globales</h1>
+                    <p class="text-sm text-slate-300 mt-1">Suivi en temps réel des étudiants, des encadrants, des sujets et des événements institutionnels.</p>
+            </div>
+            </div>
+
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="glass-card p-5 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Étudiants</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-1">{{ total_students|default:0 }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Inscrits sur la plateforme</p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Encadrants</p>
+                    <h3 class="text-3xl font-extrabold text-amber-400 mt-1">{{ total_supervisors|default:0 }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Membres du corps enseignant</p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets Proposés</p>
+                    <h3 class="text-3xl font-extrabold text-blue-400 mt-1">{{ total_subjects|default:0 }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Total des thèmes soumis</p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets Validés</p>
+                    <h3 class="text-3xl font-extrabold text-emerald-400 mt-1">{{ validated_subjects|default:0 }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Acceptés / Assignés</p>
+                </div>
+                <div class="glass-card p-5 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets Rejetés</p>
+                    <h3 class="text-3xl font-extrabold text-rose-400 mt-1">{{ rejected_subjects|default:0 }}</h3>
+                    <p class="text-[10px] text-slate-400 mt-1">Retournés avec refus ❌</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 glass-card p-8 rounded-3xl border border-white/10 shadow-xl flex flex-col items-center justify-center">
+                    <div class="w-full flex items-center justify-between mb-6">
+                        <h3 class="text-base font-bold text-white">📊 Diagramme des Proportions</h3>
+                        <span class="text-[11px] text-slate-400">Étudiants • Encadrants • Sujets</span>
+                    </div>
+                    <div class="w-full max-w-md h-72 flex items-center justify-center">
+                        <canvas id="globalProportionChart"></canvas>
+                    </div>
+                </div>
+
+            
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <h3 class="text-base font-bold text-white">🔔 Événements Actifs</h3>
+                            <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{{ all_events.count|default:0 }} en cours</span>
+                        </div>
+                        <div class="space-y-3 max-h-64 overflow-y-auto pr-1">
+                            {% if all_events %}
+                                {% for ev in all_events %}
+                                    <div class="bg-slate-900/75 p-3.5 rounded-2xl border border-slate-800 hover:border-emerald-500/40 transition text-xs space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-bold text-emerald-400">{{ ev.title }}</span>
+                                            <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded-md text-amber-300 font-mono">{{ ev.date|date:"d/m/Y H:i" }}</span>
+                                        </div>
+                                        <p class="text-slate-300 text-[11px] leading-relaxed">{{ ev.description }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="bg-slate-900/60 p-5 rounded-2xl border border-slate-800 text-xs text-slate-400 text-center space-y-2">
+                                    <p class="text-lg">📅</p>
+                                    <p class="font-bold text-slate-200">Aucun événement assigné</p>
+                                    <p>Créez un événement depuis le Calendrier pour notifier les étudiants et encadrants.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <button onclick="document.getElementById('eventModal').classList.remove('hidden')" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
+                        + Planifier une nouvelle échéance
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="content-subjects" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase tracking-wider mb-2">Validation</span>
+                <h1 class="text-3xl font-extrabold text-white">Examen des Sujets & Affectation des Encadrants</h1>
+                <p class="text-sm text-slate-300 mt-1">Acceptez un thème pour déverrouiller la liste des encadrants recommandés, ou refusez-le pour notifier l'étudiant avec une croix (❌).</p>
+            </div>
+
+            <div class="space-y-6">
+                {% if subjects_with_matching %}
+                    {% for item in subjects_with_matching %}
+                        <div class="glass-card p-6 rounded-3xl border {% if item.subject.status == 'REJECTED' %}border-rose-500/40 bg-rose-950/10{% elif item.subject.status == 'ASSIGNED' %}border-emerald-500/40{% else %}border-white/10{% endif %} space-y-4 shadow-xl">
+                            
+                    
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 border-b border-white/10 pb-4">
+                                <div>
+                                    <div class="flex items-center space-x-2">
+                                        <span class="text-xs font-extrabold text-emerald-400">🎓 {{ item.subject.student.get_full_name|default:item.subject.student.username }}</span>
+                                        <span class="text-xs text-slate-400">• {{ item.subject.student.email }}</span>
+                                        {% if item.subject.student.filiere %}
+                                            <span class="px-2 py-0.5 rounded-md bg-purple-500/20 text-purple-300 text-[10px] font-bold">{{ item.subject.student.filiere }}</span>
+                                        {% endif %}
+                                    </div>
+                                    <h3 class="font-extrabold text-white text-lg mt-1 flex items-center space-x-2">
+                                        {% if item.subject.status == 'REJECTED' %}
+                                            <span class="text-rose-500 text-xl" title="Thème refusé">❌</span>
+                                            <span class="line-through text-slate-400">{{ item.subject.title }}</span>
+                                        {% else %}
+                                            <span>{{ item.subject.title }}</span>
+                                        {% endif %}
+                                    </h3>
+                                </div>
+
+                                <div class="flex items-center space-x-3 shrink-0">
+                                    <span class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-blue-500/20 text-blue-300 border border-blue-500/30">
+                                        🤖 Acceptation IA : {{ item.subject.ai_score|default:"85" }}%
+                                    </span>
+                                    {% if item.subject.status == 'ADMIN_VALIDATED' %}
+                                        <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">✅ Accepté</span>
+                                    {% elif item.subject.status == 'ASSIGNED' %}
+                                        <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-emerald-500/30 text-emerald-200 border border-emerald-500/40">🔒 Assigné à {{ item.subject.supervisor.get_full_name|default:item.subject.supervisor.username }}</span>
+                                    {% elif item.subject.status == 'REJECTED' %}
+                                        <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">❌ Refusé & Notifié</span>
+                                    {% else %}
+                                        <span class="px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">⏳ En attente de décision</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            
+                            <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800">
+                                <p class="text-[10px] uppercase font-bold text-slate-400 mb-1">Description du projet :</p>
+                                <p class="text-xs text-slate-200 leading-relaxed">{{ item.subject.abstract }}</p>
+                            </div>
+
+                        
+                            {% if item.subject.status == 'ADMIN_VALIDATED' %}
+                                <div class="bg-gradient-to-r from-amber-500/10 to-emerald-500/10 p-5 rounded-2xl border border-amber-500/40 space-y-3">
+                                    <div class="flex items-center justify-between">
+                                        <p class="text-xs font-extrabold text-amber-300">🔓 Liste Déverrouillée : Encadrants Recommandés pour ce Projet</p>
+                                        <span class="text-[10px] text-emerald-300 font-semibold">Basé sur les spécialités cochées</span>
+                                    </div>
+                                    <form method="POST" class="flex flex-col sm:flex-row gap-3">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="subject_id" value="{{ item.subject.id }}">
+                                        <select name="supervisor_id" required class="flex-1 px-4 py-3 rounded-xl bg-slate-900 border border-amber-500/50 text-white text-xs focus:outline-none">
+                                            <option value="">Choisir un encadrant parmi les recommandations...</option>
+                                            {% for match in item.top_matches %}
+                                                <option value="{{ match.supervisor.id }}">
+                                                    ⭐ Recommandé : {{ match.supervisor.get_full_name|default:match.supervisor.username }} — Spécialités : {% for s in match.supervisor.specialites %}{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %} (Affinité: {{ match.affinity_score }}%)
+                                                </option>
+                                            {% endfor %}
+                                            <optgroup label="Tous les encadrants disponibles">
+                                                {% for sup in all_supervisors_list %}
+                                                    <option value="{{ sup.id }}">
+                                                        👨‍🏫 {{ sup.get_full_name|default:sup.username }} — Spécialités : {% for s in sup.specialites %}{{ s }}{% if not forloop.last %}, {% endif %}{% endfor %}
+                                                    </option>
+                                                {% endfor %}
+                                            </optgroup>
+                                        </select>
+                                        <button type="submit" name="assign_supervisor" class="bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold px-6 py-3 rounded-xl text-xs transition shadow-lg shrink-0">
+                                            Assigner l'Encadrant
+                                        </button>
+                                    </form>
+                                </div>
+                            {% elif item.subject.status != 'ASSIGNED' and item.subject.status != 'REJECTED' %}
+                                <div class="flex flex-wrap items-center justify-between gap-4 bg-slate-900/70 p-4 rounded-2xl border border-slate-800">
+                                    <p class="text-xs text-slate-300 font-medium">Décision de l'administrateur (acceptez pour déverrouiller la recommandation d'encadrants) :</p>
+                                    <div class="flex items-center space-x-3">
+                                        <form method="POST" class="inline">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="subject_id" value="{{ item.subject.id }}">
+                                            <button type="submit" name="accept_subject" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-5 py-2.5 rounded-xl text-xs transition shadow-lg">
+                                                ✅ Accepter le projet
+                                            </button>
+                                        </form>
+                                        <form method="POST" class="inline" onsubmit="return confirm('Confirmer le refus ? Une croix sera apposée sur ce thème et l\'étudiant recevra une notification de refus.')">
+                                            {% csrf_token %}
+                                            <input type="hidden" name="subject_id" value="{{ item.subject.id }}">
+                                            <button type="submit" name="reject_subject" class="bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 font-extrabold px-5 py-2.5 rounded-xl text-xs transition">
+                                                ❌ Refuser & Notifier
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div class="bg-slate-950/40 p-3.5 rounded-2xl border border-slate-800/80 flex items-center justify-between opacity-60">
+                                    <span class="text-xs text-slate-400">🔒 La liste déroulante des encadrants recommandables se déverrouillera dès que vous aurez accepté ce sujet.</span>
+                                </div>
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="glass-card p-12 rounded-3xl border border-white/10 text-center space-y-2">
+                        <p class="text-2xl">📋</p>
+                        <p class="text-sm font-bold text-white">Aucun sujet soumis pour le moment</p>
+                        <p class="text-xs text-slate-400">Dès qu'un étudiant soumettra son thème, il apparaîtra ici avec son score d'acceptation.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+
+        <div id="content-students" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider mb-2">Gestion des Étudiants</span>
+                    <h1 class="text-3xl font-extrabold text-white">Liste des Comptes</h1>
+                    <p class="text-sm text-slate-300 mt-1">Créez, modifiez ou supprimez des étudiants. Génération automatique du matricule et de l'e-mail institutionnel.</p>
+                </div>
+                <button type="button" onclick="resetStudentForm()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 px-4 py-2.5 rounded-xl text-xs font-bold border border-slate-700 transition shrink-0">
+                    + Nouveau / Vider le formulaire
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+                    <h3 id="student-form-title" class="text-base font-bold text-white border-b border-white/10 pb-3">Créer un Étudiant</h3>
+                    <form method="POST" class="space-y-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="student_id" id="student_id">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Prénom</label>
+                            <input type="text" name="first_name" required placeholder="Ex: Henri" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Nom</label>
+                            <input type="text" name="last_name" required placeholder="Ex: Nzuakue" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Âge</label>
+                                <input type="number" name="age" required placeholder="22" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Quartier</label>
+                                <input type="text" name="quartier" required placeholder="Bastos" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Téléphone</label>
+                            <input type="text" name="phone" required placeholder="699000000" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Filière Académique</label>
+                            <select name="filiere" required class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                                <option value="">Sélectionner une filière...</option>
+                                <option value="SEN">Software Engineering (SEN)</option>
+                                <option value="CYS">Cybersecurity (CYS)</option>
+                                <option value="CS">Computer Science (CS)</option>
+                                <option value="DS">Data Science & Big Data (DS)</option>
+                                <option value="AI">Intelligence Artificielle & ML (AI)</option>
+                                <option value="NET">Réseaux & Télécoms (NET)</option>
+                                <option value="CLOUD">Cloud Computing & Virtualisation (CLOUD)</option>
+                                <option value="IOT">Internet des Objets & Embarqué (IOT)</option>
+                                <option value="IS">Systèmes d'Information & ERP (IS)</option>
+                                <option value="DEVOPS">Ingénierie DevOps (DEVOPS)</option>
+                                <option value="WEB">Développement Web & Mobile (WEB)</option>
+                                <option value="BIO">Bio-informatique & Santé (BIO)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Mot de Passe</label>
+                            <input type="password" name="password" required placeholder="••••••••" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Confirmer le Mot de Passe</label>
+                            <input type="password" name="confirm_password" required placeholder="••••••••" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <button type="submit" name="create_student" id="student-submit-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2">
+                            Enregistrer l'Étudiant
+                        </button>
+                    </form>
+                </div>
+
+                
+                <div class="lg:col-span-2 glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">Liste des Étudiants ({{ total_students|default:0 }})</h3>
+                        <span class="text-[11px] text-slate-400">Cliquez sur Modifier pour éditer à gauche</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-800">
+                                    <th class="pb-3">Étudiant & Contact</th>
+                                    <th class="pb-3">Matricule</th>
+                                    <th class="pb-3">Filière & Quartier</th>
+                                    <th class="pb-3">Mot de Passe</th>
+                                    <th class="pb-3 text-right">Actions CRUD</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60">
+                                {% for stud in all_students_list %}
+                                    <tr class="hover:bg-white/5 transition">
+                                        <td class="py-3.5 font-semibold text-white">
+                                            {{ stud.get_full_name|default:stud.username }}
+                                            <br><span class="text-[10px] text-slate-400">{{ stud.email }}</span>
+                                            {% if stud.phone_number %}<br><span class="text-[10px] text-emerald-400">📞 {{ stud.phone_number }}</span>{% endif %}
+                                        </td>
+                                        <td class="py-3.5 text-emerald-400 font-mono font-bold">{{ stud.matricule|default:"-" }}</td>
+                                        <td class="py-3.5 text-slate-300">
+                                            <span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 font-bold text-[10px]">{{ stud.filiere|default:"-" }}</span>
+                                            <br><span class="text-[10px] text-slate-400">{{ stud.quartier|default:"" }} {% if stud.age %}({{ stud.age }} ans){% endif %}</span>
+                                        </td>
+                                        <td class="py-3.5 font-mono text-amber-300 font-bold">{{ stud.visible_password|default:"••••••" }}</td>
+                                        <td class="py-3.5 text-right space-x-1 whitespace-nowrap">
+                                            <button type="button" 
+                                                data-id="{{ stud.id }}" 
+                                                data-firstname="{{ stud.first_name }}" 
+                                                data-lastname="{{ stud.last_name }}" 
+                                                data-age="{{ stud.age|default:'' }}" 
+                                                data-quartier="{{ stud.quartier|default:'' }}" 
+                                                data-phone="{{ stud.phone_number|default:'' }}" 
+                                                data-filiere="{{ stud.filiere }}" 
+                                                onclick="handleEditStudent(this)" 
+                                                class="text-[11px] bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 font-semibold px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                                                ✏️ Modifier
+                                            </button>
+                                            <form method="POST" class="inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cet étudiant ?')">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ stud.id }}">
+                                                <button type="submit" name="delete_user" class="text-[11px] bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white font-semibold px-3 py-1.5 rounded-xl border border-rose-500/30 transition">
+                                                    🗑️ Supprimer
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="5" class="py-8 text-center text-slate-400">Aucun étudiant enregistré. Utilisez le formulaire à gauche pour en créer un.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="content-supervisors" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider mb-2">Corps Enseignant</span>
+                    <h1 class="text-3xl font-extrabold text-white">CRUD Encadrants & Spécialités Multiples</h1>
+                    <p class="text-sm text-slate-300 mt-1">Cochez les spécialités propres à chaque enseignant pour alimenter la recommandation des sujets.</p>
+                </div>
+                <button type="button" onclick="resetSupervisorForm()" class="bg-slate-800 hover:bg-slate-700 text-amber-400 px-4 py-2.5 rounded-xl text-xs font-bold border border-slate-700 transition shrink-0">
+                    + Nouveau / Vider le formulaire
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+                    <h3 id="supervisor-form-title" class="text-base font-bold text-white border-b border-white/10 pb-3">Créer un Encadrant</h3>
+                    <form method="POST" id="supervisorForm" onsubmit="return validateSupervisorSpecialties()" class="space-y-3">
+                        {% csrf_token %}
+                        <input type="hidden" name="supervisor_id" id="supervisor_id">
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Prénom</label>
+                            <input type="text" name="first_name" required placeholder="Ex: Jean" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Nom</label>
+                            <input type="text" name="last_name" required placeholder="Ex: Dupont" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Âge</label>
+                                <input type="number" name="age" required placeholder="35" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Quartier</label>
+                                <input type="text" name="quartier" required placeholder="Omnisport" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Téléphone</label>
+                            <input type="text" name="phone" required placeholder="690000000" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <label class="block text-[10px] font-bold text-amber-300 uppercase">Spécialités</label>
+                                <span id="spec-counter" class="text-[10px] bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold border border-amber-500/30">0 cochée(s)</span>
+                            </div>
+                            <div id="specialites-checkbox-container" class="w-full max-h-48 overflow-y-auto p-2.5 rounded-xl bg-slate-900/90 border border-slate-700 space-y-1.5">
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="DevOps & Docker" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">DevOps, CI/CD & Docker</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Microservices & APIs" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Architecture Microservices & APIs</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Frontend React / Tailwind" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Frontend (React, Vue, Tailwind)</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Backend Django & Python" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Backend (Django, FastAPI, Python)</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Intelligence Artificielle & RAG" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Intelligence Artificielle, NLP & RAG</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Machine Learning & Deep Learning" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Machine Learning & Deep Learning</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Cybersécurité & Pentesting" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Cybersécurité Offensive & Pentesting</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Sécurité Réseau & Wireshark" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Sécurité Réseau, IDS/IPS & Wireshark</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Base de données & PostgreSQL" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Bases de Données, NoSQL & pgvector</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Mobile Development (Flutter)" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Développement Mobile (Flutter / React Native)</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Algorithmique & OR-Tools" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Algorithmique, RO & Google OR-Tools</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Cloud Computing & AWS" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Architecture Cloud (AWS, Azure, GCP)</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Big Data & Apache Spark" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Big Data, Apache Spark & Kafka</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Blockchain & Smart Contracts" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Blockchain, Smart Contracts & Web3</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Embedded Systems & IoT" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">IoT, Arduino, Raspberry Pi & Embarqué</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Linux & System Admin" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Administration Systèmes Linux & Bash</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Audit SI & Gouvernance IT" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Audit des SI, ERP (Odoo/SAP) & Gouvernance</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Cryptographie & Sécurité" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Cryptographie Appliquée & Protection des Données</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="UI/UX Design & Ergonomy" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Conception UI/UX & Ergonomie Logicielle</span>
+                                </label>
+                                <label class="flex items-center space-x-2.5 p-1.5 rounded-lg hover:bg-white/5 cursor-pointer transition">
+                                    <input type="checkbox" name="specialites" value="Quality Assurance & Testing" onchange="updateSpecCounter()" class="w-4 h-4 rounded accent-amber-500">
+                                    <span class="text-xs text-slate-200">Qualité Logicielle, Tests Automatisés & TDD</span>
+                                </label>
+                            </div>
+                            <p id="spec-error" class="text-[10px] text-rose-400 font-semibold mt-1 hidden">⚠️ Veuillez cocher au moins une spécialité.</p>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Mot de Passe</label>
+                            <input type="password" name="password" required placeholder="••••••••" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Confirmer le Mot de Passe</label>
+                            <input type="password" name="confirm_password" required placeholder="••••••••" class="w-full px-3 py-2 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+                        <button type="submit" name="create_supervisor" id="supervisor-submit-btn" class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2">
+                            Enregistrer l'Encadrant
+                        </button>
+                    </form>
+                </div>
+
+                
+                <div class="lg:col-span-2 glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">Liste des Encadrants ({{ total_supervisors|default:0 }})</h3>
+                        <span class="text-[11px] text-slate-400">Spécialités utilisées pour le matching</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs">
+                            <thead>
+                                <tr class="text-slate-400 border-b border-slate-800">
+                                    <th class="pb-3">Encadrant & Contact</th>
+                                    <th class="pb-3">Spécialités Cochées</th>
+                                    <th class="pb-3">Mot de Passe</th>
+                                    <th class="pb-3 text-right">Actions CRUD</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-800/60">
+                                {% for sup in all_supervisors_list %}
+                                    <tr class="hover:bg-white/5 transition">
+                                        <td class="py-3.5 font-semibold text-white">
+                                            {{ sup.get_full_name|default:sup.username }}
+                                            <br><span class="text-[10px] text-slate-400">{{ sup.email }}</span>
+                                            {% if sup.phone_number %}<br><span class="text-[10px] text-amber-400">📞 {{ sup.phone_number }} ({{ sup.quartier|default:"" }})</span>{% endif %}
+                                        </td>
+                                        <td class="py-3.5 text-amber-400 font-semibold max-w-xs">
+                                            {% for spec in sup.specialites %}
+                                                <span class="inline-block bg-amber-500/15 text-amber-300 px-2.5 py-0.5 rounded-lg text-[10px] mr-1 mb-1 border border-amber-500/30">{{ spec }}</span>
+                                            {% empty %}
+                                                <span class="text-slate-500 italic text-[11px]">Aucune spécialité cochée</span>
+                                            {% endfor %}
+                                        </td>
+                                        <td class="py-3.5 font-mono text-amber-300 font-bold">{{ sup.visible_password|default:"••••••" }}</td>
+                                        <td class="py-3.5 text-right space-x-1 whitespace-nowrap">
+                                            <button type="button" 
+                                                data-id="{{ sup.id }}" 
+                                                data-firstname="{{ sup.first_name }}" 
+                                                data-lastname="{{ sup.last_name }}" 
+                                                data-age="{{ sup.age|default:'' }}" 
+                                                data-quartier="{{ sup.quartier|default:'' }}" 
+                                                data-phone="{{ sup.phone_number|default:'' }}" 
+                                                data-specialites="{{ sup.specialites|join:'||' }}" 
+                                                onclick="handleEditSupervisor(this)" 
+                                                class="text-[11px] bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 font-semibold px-3 py-1.5 rounded-xl border border-slate-700 transition">
+                                                ✏️ Modifier
+                                            </button>
+                                            <form method="POST" class="inline" onsubmit="return confirm('Voulez-vous vraiment supprimer cet encadrant ?')">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="user_id" value="{{ sup.id }}">
+                                                <button type="submit" name="delete_user" class="text-[11px] bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white font-semibold px-3 py-1.5 rounded-xl border border-rose-500/30 transition">
+                                                    🗑️ Supprimer
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% empty %}
+                                    <tr>
+                                        <td colspan="4" class="py-8 text-center text-slate-400">Aucun encadrant enregistré. Utilisez le formulaire à gauche pour en créer un.</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="content-calendar" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-2">Rubrique 05 • Calendrier Global</span>
+                    <h1 class="text-3xl font-extrabold text-white">Grand Calendrier Académique & Échéances</h1>
+                    <p class="text-sm text-slate-300 mt-1">Cliquez sur une case du calendrier ou sur le bouton pour ouvrir le pop-up et diffuser un événement sur tous les dashboards.</p>
+                </div>
+                <button onclick="openEventModalWithDate('')" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-6 py-3.5 rounded-2xl shadow-lg transition text-xs shrink-0">
+                    + Créer un Événement (Pop-up)
+                </button>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+   
+                <div class="lg:col-span-3 glass-card p-6 rounded-3xl border border-white/10 shadow-2xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <h3 id="calendarMonthTitle" class="text-xl font-extrabold text-white capitalize">Octobre 2026</h3>
+                        <div class="flex items-center space-x-2">
+                            <button type="button" onclick="changeMonth(-1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700">◀ Précédent</button>
+                            <button type="button" onclick="resetToCurrentMonth()" class="px-3 py-1.5 rounded-xl bg-emerald-500/20 text-emerald-300 text-xs font-bold border border-emerald-500/30">Aujourd'hui</button>
+                            <button type="button" onclick="changeMonth(1)" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white text-xs font-bold border border-slate-700">Suivant ▶</button>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-7 gap-2 text-center text-[11px] font-extrabold uppercase text-emerald-400">
+                        <div class="py-2">Lun</div>
+                        <div class="py-2">Mar</div>
+                        <div class="py-2">Mer</div>
+                        <div class="py-2">Jeu</div>
+                        <div class="py-2">Ven</div>
+                        <div class="py-2 text-amber-400">Sam</div>
+                        <div class="py-2 text-amber-400">Dim</div>
+                    </div>
+
+                    <div id="calendarGrid" class="grid grid-cols-7 gap-2"></div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl flex flex-col justify-between">
+                    <div class="space-y-4">
+                        <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">🔔 Notifications Actives</h3>
+                        <div class="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+                            {% if all_events %}
+                                {% for ev in all_events %}
+                                    <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-emerald-500/30 space-y-1.5 text-xs relative group">
+                                        <div class="flex justify-between items-start">
+                                            <p class="font-extrabold text-emerald-400 pr-4">{{ ev.title }}</p>
+                                            <form method="POST" class="inline">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="event_id" value="{{ ev.id }}">
+                                                <button type="submit" name="delete_event" title="Supprimer" class="text-slate-500 hover:text-rose-400 font-bold">✕</button>
+                                            </form>
+                                        </div>
+                                        <p class="text-[11px] text-amber-300 font-mono">📅 {{ ev.date|date:"d/m/Y à H:i" }}</p>
+                                        <p class="text-slate-300 text-[11px]">{{ ev.description }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-xs text-slate-400 text-center py-8">Cliquez sur un jour du calendrier pour ajouter une échéance.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="bg-emerald-500/10 p-3.5 rounded-2xl border border-emerald-500/20 text-[11px] text-emerald-300">
+                        💡 Tout événement créé ici s'affiche automatiquement sur le <strong>Home Admin, Étudiant et Encadrant</strong>.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        
+        <div id="content-defense" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30 uppercase tracking-wider mb-2">Soutenances & Jurys</span>
+                    <h1 class="text-3xl font-extrabold text-white">Planification Automatique des Salles & Jurys par Filière</h1>
+                    <p class="text-sm text-slate-300 mt-1">Regroupe les étudiants par filière, attribue les salles et affecte les encadrants comme membres du jury (débloque leur espace Jury).</p>
+                </div>
+                <form method="POST" class="shrink-0">
+                    {% csrf_token %}
+                    <button type="submit" name="run_scheduler" class="bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-slate-950 font-extrabold px-6 py-4 rounded-2xl shadow-2xl transition text-xs flex items-center space-x-2">
+                        <span>⚙️</span>
+                        <span>Lancer Google OR-Tools (Auto-Salles & Jurys)</span>
+                    </button>
+                </form>
+            </div>
+
+            <div class="glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h3 class="text-base font-bold text-white">🎓 Soutenances Regroupées par Filière & Téléchargement des PV</h3>
+                    <span class="text-xs text-emerald-400 font-semibold">🔓 Débloque automatiquement la rubrique Jury chez l'encadrant affecté</span>
+                </div>
+
+                {% if active_projects %}
+                    {% regroup active_projects by student.filiere as filiere_list %}
+                    <div class="space-y-6">
+                        {% for group in filiere_list %}
+                            <div class="bg-slate-950/60 p-5 rounded-2xl border border-slate-800 space-y-4">
+                                <div class="flex items-center justify-between">
+                                    <span class="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 border border-purple-500/30 text-xs font-extrabold uppercase">
+                                        Filière : {{ group.grouper|default:"Tronc Commun / Général" }}
+                                    </span>
+                                    <span class="text-xs text-slate-400">{{ group.list|length }} candidat(s)</span>
+                                </div>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {% for proj in group.list %}
+                                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 space-y-2 text-xs flex flex-col justify-between">
+                                            <div class="space-y-1.5">
+                                                <p class="font-extrabold text-white text-sm">{{ proj.subject.title }}</p>
+                                                <p class="text-emerald-400 font-semibold">🎓 Candidat : {{ proj.student.get_full_name|default:proj.student.username }} ({{ proj.student.matricule|default:"ICTU" }})</p>
+                                                <p class="text-amber-300">👨‍🏫 Encadrant / Jury : {{ proj.supervisor.get_full_name|default:proj.supervisor.username }}</p>
+                                            </div>
+                                            <a href="{% url 'scheduling:download_pv' proj.id %}" target="_blank" class="block text-center bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 border border-slate-700 py-2.5 rounded-xl font-bold transition mt-3">
+                                                📄 Télécharger le PV Officiel (PDF)
+                                            </a>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-10 space-y-2">
+                        <p class="text-2xl">🏛️</p>
+                        <p class="text-xs text-slate-400">Aucun projet validé en attente de soutenance. Acceptez et assignez d'abord des sujets, puis lancez le solveur.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        
+        <div id="eventModal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+            <div class="glass-card p-8 rounded-3xl border border-white/20 max-w-lg w-full space-y-6 shadow-2xl relative">
+                <button type="button" onclick="document.getElementById('eventModal').classList.add('hidden')" class="absolute top-6 right-6 text-slate-400 hover:text-white font-bold text-xl">✕</button>
+                <div>
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-400">Diffusion Multi-Dashboards</span>
+                    <h2 class="text-xl font-extrabold text-white mt-1">Créer un Événement Institutionnel</h2>
+                </div>
+                <form method="POST" class="space-y-4">
+                    {% csrf_token %}
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Titre de l'événement / Date de fin</label>
+                        <input type="text" name="event_title" required placeholder="Ex: Date limite de dépôt des PFE & Soutenances" class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Date et Heure</label>
+                        <input type="datetime-local" id="modal_event_date" name="event_date" required class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-300 uppercase mb-1">Notification / Instructions</label>
+                        <textarea name="event_desc" rows="3" required placeholder="Message qui s'affichera sur le Home de l'admin, des étudiants et des encadrants..." class="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+                    </div>
+                    <button type="submit" name="create_event" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3.5 rounded-xl text-xs transition shadow-lg">
+                        🔔 Publier & Notifier Tout le Monde
+                    </button>
+                </form>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    
+    let sidebarOpen = true;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const mainContent = document.getElementById('mainContent');
+        const openBtn = document.getElementById('openSidebarBtn');
+
+        sidebarOpen = !sidebarOpen;
+        if (sidebarOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            mainContent.classList.add('md:ml-72');
+            openBtn.classList.add('hidden');
+            openBtn.classList.remove('flex');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            mainContent.classList.remove('md:ml-72');
+            openBtn.classList.remove('hidden');
+            openBtn.classList.add('flex');
+        }
+    }
+
+    
+    function switchSection(sectionId, event) {
+        if (event) event.preventDefault();
+        const sections = ['home', 'subjects', 'students', 'supervisors', 'calendar', 'defense'];
+        sections.forEach(sec => {
+            const el = document.getElementById('content-' + sec);
+            if (el) el.classList.add('hidden');
+        });
+        
+        const target = document.getElementById('content-' + sectionId);
+        if (target) target.classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent";
+            if (link.getAttribute('href') === '#' + sectionId) {
+                link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-emerald-500/25 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-lg";
+            }
+        });
+
+        localStorage.setItem('activeAdminTab', sectionId);
+        if (window.innerWidth < 768 && sidebarOpen) {
+            toggleSidebar();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTab = localStorage.getItem('activeAdminTab');
+        if (savedTab) {
+            switchSection(savedTab, null);
+        }
+        renderCalendar();
+    });
+
+    
+    function updateSpecCounter() {
+        const checkedCount = document.querySelectorAll('#specialites-checkbox-container input[type="checkbox"]:checked').length;
+        const counterBadge = document.getElementById('spec-counter');
+        const errorMsg = document.getElementById('spec-error');
+        if (counterBadge) counterBadge.textContent = checkedCount + " cochée(s)";
+        if (checkedCount > 0 && errorMsg) errorMsg.classList.add('hidden');
+    }
+
+    function validateSupervisorSpecialties() {
+        const checkedCount = document.querySelectorAll('#specialites-checkbox-container input[type="checkbox"]:checked').length;
+        const errorMsg = document.getElementById('spec-error');
+        if (checkedCount === 0) {
+            if (errorMsg) errorMsg.classList.remove('hidden');
+            alert("Veuillez cocher au moins une spécialité pour cet encadrant !");
+            return false;
+        }
+        return true;
+    }
+
+    
+    function resetStudentForm() {
+        let form = document.querySelector('#content-students form');
+        form.reset();
+        form.querySelector('#student_id').value = "";
+        form.querySelector('input[name="password"]').required = true;
+        form.querySelector('input[name="confirm_password"]').required = true;
+        form.querySelector('input[name="password"]').placeholder = "••••••••";
+        form.querySelector('input[name="confirm_password"]').placeholder = "••••••••";
+        document.getElementById('student-form-title').textContent = "Créer un Étudiant";
+        let submitBtn = document.getElementById('student-submit-btn');
+        submitBtn.name = 'create_student';
+        submitBtn.textContent = "Enregistrer l'Étudiant";
+        submitBtn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2";
+    }
+
+    function resetSupervisorForm() {
+        let form = document.querySelector('#content-supervisors form');
+        form.reset();
+        form.querySelector('#supervisor_id').value = "";
+        form.querySelectorAll('#specialites-checkbox-container input[type="checkbox"]').forEach(cb => cb.checked = false);
+        updateSpecCounter();
+        form.querySelector('input[name="password"]').required = true;
+        form.querySelector('input[name="confirm_password"]').required = true;
+        form.querySelector('input[name="password"]').placeholder = "••••••••";
+        form.querySelector('input[name="confirm_password"]').placeholder = "••••••••";
+        document.getElementById('supervisor-form-title').textContent = "Créer un Encadrant";
+        let submitBtn = document.getElementById('supervisor-submit-btn');
+        submitBtn.name = 'create_supervisor';
+        submitBtn.textContent = "Enregistrer l'Encadrant";
+        submitBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2";
+    }
+
+    function handleEditStudent(button) {
+        let form = document.querySelector('#content-students form');
+        form.querySelector('#student_id').value = button.getAttribute('data-id');
+        form.querySelector('input[name="first_name"]').value = button.getAttribute('data-firstname');
+        form.querySelector('input[name="last_name"]').value = button.getAttribute('data-lastname');
+        form.querySelector('input[name="age"]').value = button.getAttribute('data-age');
+        form.querySelector('input[name="quartier"]').value = button.getAttribute('data-quartier');
+        form.querySelector('input[name="phone"]').value = button.getAttribute('data-phone');
+        form.querySelector('select[name="filiere"]').value = button.getAttribute('data-filiere');
+        
+        form.querySelector('input[name="password"]').required = false;
+        form.querySelector('input[name="confirm_password"]').required = false;
+        form.querySelector('input[name="password"]').placeholder = "Laisser vide si inchangé";
+        form.querySelector('input[name="confirm_password"]').placeholder = "Laisser vide si inchangé";
+
+        document.getElementById('student-form-title').textContent = "✏️ Modifier l'Étudiant";
+        let submitBtn = document.getElementById('student-submit-btn');
+        submitBtn.name = 'update_student';
+        submitBtn.textContent = "Mettre à jour l'Étudiant";
+        submitBtn.className = "w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2";
+    }
+
+    function handleEditSupervisor(button) {
+        let form = document.querySelector('#content-supervisors form');
+        form.querySelector('#supervisor_id').value = button.getAttribute('data-id');
+        form.querySelector('input[name="first_name"]').value = button.getAttribute('data-firstname');
+        form.querySelector('input[name="last_name"]').value = button.getAttribute('data-lastname');
+        form.querySelector('input[name="age"]').value = button.getAttribute('data-age');
+        form.querySelector('input[name="quartier"]').value = button.getAttribute('data-quartier');
+        form.querySelector('input[name="phone"]').value = button.getAttribute('data-phone');
+
+        let specsArray = button.getAttribute('data-specialites') ? button.getAttribute('data-specialites').split('||').map(s => s.trim()) : [];
+        form.querySelectorAll('#specialites-checkbox-container input[type="checkbox"]').forEach(cb => {
+            cb.checked = specsArray.includes(cb.value.trim());
+        });
+        updateSpecCounter();
+
+        form.querySelector('input[name="password"]').required = false;
+        form.querySelector('input[name="confirm_password"]').required = false;
+        form.querySelector('input[name="password"]').placeholder = "Laisser vide si inchangé";
+        form.querySelector('input[name="confirm_password"]').placeholder = "Laisser vide si inchangé";
+
+        document.getElementById('supervisor-form-title').textContent = "✏️ Modifier l'Encadrant";
+        let submitBtn = document.getElementById('supervisor-submit-btn');
+        submitBtn.name = 'update_supervisor';
+        submitBtn.textContent = "Mettre à jour l'Encadrant";
+        submitBtn.className = "w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition shadow-lg mt-2";
+    }
+
+    
+    const calendarEvents = JSON.parse('{{ events_json|default:"[]"|escapejs }}');
+    let currentCalDate = new Date();
+
+    function openEventModalWithDate(dateStr) {
+        const modal = document.getElementById('eventModal');
+        const dateInput = document.getElementById('modal_event_date');
+        if (dateStr && dateInput) {
+            dateInput.value = dateStr + "T09:00";
+        }
+        modal.classList.remove('hidden');
+    }
+
+    function changeMonth(offset) {
+        currentCalDate.setMonth(currentCalDate.getMonth() + offset);
+        renderCalendar();
+    }
+
+    function resetToCurrentMonth() {
+        currentCalDate = new Date();
+        renderCalendar();
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const title = document.getElementById('calendarMonthTitle');
+        if (!grid || !title) return;
+
+        const year = currentCalDate.getFullYear();
+        const month = currentCalDate.getMonth();
+        const monthNames = ["Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"];
+        title.textContent = `${monthNames[month]} ${year}`;
+
+        grid.innerHTML = "";
+        const firstDay = new Date(year, month, 1).getDay();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const startOffset = (firstDay === 0) ? 6 : firstDay - 1;
+
+        for (let i = 0; i < startOffset; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = "h-24 rounded-2xl bg-slate-950/20 border border-white/5";
+            grid.appendChild(emptyCell);
+        }
+
+        for (let day = 1; day <= daysInMonth; day++) {
+            const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+            const dayEvents = calendarEvents.filter(e => e.date === dateStr);
+
+            const cell = document.createElement('div');
+            cell.className = "h-24 p-2 rounded-2xl bg-slate-900/70 hover:bg-slate-800/80 border border-slate-800 hover:border-emerald-500/50 transition cursor-pointer flex flex-col justify-between overflow-hidden";
+            cell.onclick = () => openEventModalWithDate(dateStr);
+
+            let eventsHtml = "";
+            dayEvents.forEach(ev => {
+                eventsHtml += `<div class="px-1.5 py-0.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 text-[9px] font-bold truncate" title="${ev.title} (${ev.time})">🔔 ${ev.time} ${ev.title}</div>`;
+            });
+
+            cell.innerHTML = `
+                <div class="flex justify-between items-center">
+                    <span class="text-xs font-extrabold text-slate-300">${day}</span>
+                    ${dayEvents.length > 0 ? '<span class="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>' : ''}
+                </div>
+                <div class="space-y-1 overflow-y-auto">${eventsHtml}</div>
+            `;
+            grid.appendChild(cell);
+        }
+    }
+
+    
+    const ctx = document.getElementById('globalProportionChart').getContext('2d');
+    const totalStud = parseInt("{{ total_students|default:0 }}") || 0;
+    const totalSup = parseInt("{{ total_supervisors|default:0 }}") || 0;
+    const totalSubj = parseInt("{{ total_subjects|default:0 }}") || 0;
+  
+    const valSubj = parseInt("{{ validated_subjects|default:0 }}") || 0;
+  
+    const rejSubj = parseInt("{{ rejected_subjects|default:0 }}") || 0;
+    
+
+    const rawPendSubj = parseInt("{{ pending_subjects|default:0 }}") || 0;
+    const pendSubj = rawPendSubj > 0 ? rawPendSubj : Math.max(0, totalSubj - valSubj - rejSubj);
+
+    
+    const sidebarBadge = document.getElementById('sidebar-pending-badge');
+    if (sidebarBadge) {
+        if (pendSubj > 0) {
+            sidebarBadge.textContent = pendSubj;
+            sidebarBadge.classList.remove('hidden');
+        } else {
+            sidebarBadge.classList.add('hidden');
+        }
+    }
+
+    const sumAll = totalStud + totalSup + valSubj + pendSubj + rejSubj;
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: sumAll > 0 
+                ? ['Étudiants', 'Encadrants', 'Sujets Validés', 'Sujets en Attente', 'Sujets Rejetés'] 
+                : ['Aucune donnée enregistrée'],
+            datasets: [{
+                data: sumAll > 0 ? [totalStud, totalSup, valSubj, pendSubj, rejSubj] : [1],
+                backgroundColor: sumAll > 0 
+                    ? ['#A855F7', '#F59E0B', '#10B981', '#3B82F6', '#EF4444'] 
+                    : ['#334155'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#E2E8F0', font: { size: 11 }, padding: 14 }
+                }
+            }
+        }
+    });
+</script>
+{% endblock %}

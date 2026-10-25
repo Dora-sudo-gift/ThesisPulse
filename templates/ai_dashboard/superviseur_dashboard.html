@@ -1,0 +1,719 @@
+{% extends 'base.html' %}
+
+{% block title %}Espace Encadrant  | ThesisPulse{% endblock %}
+
+{% block content %}
+<div class="min-h-screen hero-pattern text-slate-100 flex relative overflow-x-hidden">
+
+    <button id="openSidebarBtn" onclick="toggleSidebar()" class="fixed top-5 left-5 z-50 p-3 rounded-2xl bg-slate-900/85 backdrop-blur-xl text-sky-400 hover:text-white hover:bg-sky-600/30 shadow-2xl border border-white/15 transition-all duration-300 hidden items-center space-x-2 group">
+        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <span class="text-xs font-bold tracking-wider uppercase pr-1">Menu</span>
+    </button>
+
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-950/40 backdrop-blur-2xl border-r border-white/10 transition-transform duration-300 ease-in-out transform translate-x-0 flex flex-col shadow-2xl">
+        
+        
+        <div class="h-20 flex items-center justify-between px-6 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-sky-500"></span>
+                </span>
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-white block">Portail Encadrant</span>
+                    <span class="text-[10px] text-sky-400 font-medium">Supervision</span>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" title="Réduire la barre latérale" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+        </div>
+
+        
+        <div class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+            <p class="px-3 text-[10px] uppercase tracking-wider font-bold text-sky-400/80 mb-3">Modules Enseignant</p>
+            
+            <a href="#home" onclick="switchSection('home', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-sky-500/25 to-emerald-500/10 text-sky-300 border border-sky-500/30 shadow-lg">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">🏠</span>
+                    <span>Home</span>
+                </div>
+                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-mono">{{ total_assigned_students|default:0 }}</span>
+            </a>
+
+            <a href="#projects" onclick="switchSection('projects', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">📬</span>
+                    <span>Projets</span>
+                </div>
+                {% if pending_reports_count > 0 %}
+                    <span class="bg-amber-500 text-slate-950 font-extrabold text-[10px] px-2 py-0.5 rounded-full animate-pulse">{{ pending_reports_count }}</span>
+                {% else %}
+                    <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-400 font-mono">0</span>
+                {% endif %}
+            </a>
+
+            <a href="#group" onclick="switchSection('group', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">💬</span>
+                    <span>Groupe</span>
+                </div>
+                <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+            </a>
+
+            <a href="#jury" onclick="switchSection('jury', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">⚖️</span>
+                    <span>Jury</span>
+                </div>
+                {% if jury_unlocked %}
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">🔓 Actif</span>
+                {% else %}
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-bold bg-slate-800 text-slate-400">🔒</span>
+                {% endif %}
+            </a>
+
+            <a href="#profile" onclick="switchSection('profile', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">👤</span>
+                    <span>Mon Profil</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-slate-950/60 space-y-3">
+            <div class="flex items-center space-x-3 px-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-md shrink-0">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate">Pr. {{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-[10px] text-sky-400 font-medium truncate">Encadrant Académique</p>
+                </div>
+            </div>
+            <form action="{% url 'login' %}" method="post" class="w-full">
+                {% csrf_token %}
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-red-600/15 hover:from-rose-500/30 hover:to-red-600/30 text-rose-300 hover:text-white text-xs font-bold transition-all duration-200 border border-rose-500/25 hover:border-rose-500/50 flex items-center justify-center space-x-2 shadow-lg group">
+                    <svg class="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Se déconnecter</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    
+    <div id="mainContent" class="flex-1 md:ml-72 p-6 lg:p-10 space-y-8 transition-all duration-300">
+
+        
+        {% if messages %}
+            <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3 max-w-md w-full">
+                {% for message in messages %}
+                    <div class="toast-item glass-card p-4 rounded-2xl text-xs font-semibold shadow-2xl flex items-center justify-between border {% if message.tags == 'error' %}bg-red-950/90 text-red-200 border-red-500/40{% else %}bg-emerald-950/90 text-emerald-200 border-emerald-500/40{% endif %}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white ml-3 font-bold text-base">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const container = document.getElementById('toast-container');
+                    if (container) {
+                        container.style.transition = 'opacity 0.2s ease';
+                        container.style.opacity = '0';
+                        setTimeout(() => container.remove(), 500);
+                    }
+                }, 5000);
+            </script>
+        {% endif %}
+
+        
+        <div id="content-home" class="dashboard-section space-y-8">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-2xl backdrop-blur-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-wider mb-2">Vue d'Ensemble Encadrant</span>
+                    <h1 class="text-3xl font-extrabold text-white">Bonjour, Engr. {{ request.user.get_full_name|default:request.user.username }} 👋</h1>
+                    <p class="text-sm text-slate-300 mt-1">Supervisez vos étudiants assignés, consultez les échéances officielles et accédez à votre boîte de réception RAG.</p>
+                </div>
+                <button onclick="switchSection('projects', null)" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-extrabold px-5 py-3 rounded-2xl shadow-lg transition text-xs shrink-0">
+                    📬 Ouvrir la Boîte de Réception ({{ pending_reports_count|default:0 }})
+                </button>
+            </div>
+
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Étudiants Assignés</p>
+                    <h3 class="text-3xl font-extrabold text-white mt-2">{{ total_assigned_students|default:0 }}</h3>
+                    <p class="text-[11px] text-sky-400 mt-1">Sous votre encadrement direct</p>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Total Projets Assignés</p>
+                    <h3 class="text-3xl font-extrabold text-emerald-400 mt-2">{{ total_assigned_projects|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Thèmes validés & actifs</p>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Rapports en Attente</p>
+                    <h3 class="text-3xl font-extrabold text-amber-400 mt-2">{{ pending_reports_count|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">À commenter dans la rubrique 2</p>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Rapports Déjà Traités</p>
+                    <h3 class="text-3xl font-extrabold text-purple-400 mt-2">{{ reviewed_reports_count|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Archivés avec vos retours ✅</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-2 glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">🎓 Liste de vos Étudiants Assignés ({{ total_assigned_students|default:0 }})</h3>
+                        <button onclick="switchSection('group', null)" class="text-[11px] text-emerald-400 hover:underline font-bold">💬 Écrire à tout le groupe →</button>
+                    </div>
+
+                    {% if assigned_students_data %}
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-left text-xs">
+                                <thead>
+                                    <tr class="text-slate-400 border-b border-slate-800">
+                                        <th class="pb-3">Étudiant & E-mail</th>
+                                        <th class="pb-3">Matricule & Filière</th>
+                                        <th class="pb-3">Thème PFE Assigné</th>
+                                        <th class="pb-3 text-right">Contact</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-800/60">
+                                    {% for item in assigned_students_data %}
+                                        <tr class="hover:bg-white/5 transition">
+                                            <td class="py-3.5 font-semibold text-white">
+                                                {{ item.student.get_full_name|default:item.student.username }}
+                                                <br><span class="text-[10px] text-slate-400">{{ item.student.email }}</span>
+                                            </td>
+                                            <td class="py-3.5">
+                                                <span class="font-mono text-emerald-400 font-bold">{{ item.student.matricule|default:"ICTU" }}</span>
+                                                <br><span class="px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 text-[10px] font-bold">{{ item.student.filiere|default:"SEN" }}</span>
+                                            </td>
+                                            <td class="py-3.5 text-slate-200 max-w-xs">
+                                                <p class="font-bold truncate" title="{{ item.subject.title }}">{{ item.subject.title }}</p>
+                                                <span class="text-[10px] text-sky-400">Score IA initial : {{ item.subject.ai_score|default:"85" }}%</span>
+                                            </td>
+                                            <td class="py-3.5 text-right font-mono text-[11px] text-amber-300">
+                                                {{ item.student.phone_number|default:"Non renseigné" }}
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="text-center py-12 space-y-2">
+                            <p class="text-3xl">🎓</p>
+                            <p class="text-sm font-bold text-white">Aucun étudiant assigné pour le moment</p>
+                            <p class="text-xs text-slate-400">Dès que l'administrateur vous affectera un sujet validé, l'étudiant apparaîtra automatiquement dans ce tableau.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                
+                <div class="space-y-6">
+                    
+                    <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                        <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                            <h3 class="text-base font-bold text-white">📅 Événements Disponibles</h3>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">{{ events|length|default:0 }}</span>
+                        </div>
+                        <div class="space-y-3 max-h-60 overflow-y-auto pr-1">
+                            {% if events %}
+                                {% for ev in events %}
+                                    <div class="bg-slate-900/80 p-3.5 rounded-2xl border border-slate-800 space-y-1 text-xs">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-extrabold text-emerald-400">🔔 {{ ev.title }}</span>
+                                            <span class="text-[10px] text-amber-300 font-mono">{{ ev.date|date:"d/m/Y H:i" }}</span>
+                                        </div>
+                                        <p class="text-slate-300 text-[11px] leading-relaxed">{{ ev.description }}</p>
+                                    </div>
+                                {% endfor %}
+                            {% else %}
+                                <p class="text-xs text-slate-400 text-center py-6">Aucun événement programmé dans le calendrier global.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    
+                    <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-3">
+                        <h3 class="text-sm font-bold text-white">🛠️ Vos Spécialités </h3>
+                        <p class="text-[11px] text-slate-400">Compétences</p>
+                        <div class="flex flex-wrap gap-1.5">
+                            {% for spec in request.user.specialites %}
+                                <span class="px-2.5 py-1 rounded-lg bg-amber-500/15 text-amber-300 border border-amber-500/30 text-[10px] font-bold">{{ spec }}</span>
+                            {% empty %}
+                                <span class="text-xs text-slate-500 italic">Aucune spécialité cochée.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-projects" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 shadow-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider mb-2">Vérification & IA RAG</span>
+                    <h1 class="text-3xl font-extrabold text-white">Boîte de Réception des Rapports & Mini-Chatbot Lecteur</h1>
+                    <p class="text-sm text-slate-300 mt-1">Chaque envoi étudiant se présente comme un e-mail avec son fichier PDF/Word et un Chatbot IA à côté qui lit le document à votre place. Dès que vous soumettez votre commentaire, le message disparaît pour faire remonter le suivant !</p>
+                </div>
+                <div class="bg-slate-900/90 px-4 py-2.5 rounded-2xl border border-slate-800 text-right shrink-0">
+                    <span class="text-[10px] text-slate-400 uppercase font-bold block">File d'attente</span>
+                    <span class="text-sm font-extrabold text-amber-400">{{ pending_reports_count|default:0 }} rapport(s) à traiter</span>
+                </div>
+            </div>
+
+            {% if pending_reports %}
+                <div class="space-y-8">
+                    {% for rep in pending_reports %}
+                        
+                        <div class="glass-card rounded-3xl border {% if active_rag_report_id == rep.id %}border-sky-500/60 ring-1 ring-sky-500/40{% else %}border-white/15{% endif %} shadow-2xl overflow-hidden">
+                            
+                            
+                            <div class="bg-slate-900/95 px-6 py-4 border-b border-white/10 flex flex-wrap items-center justify-between gap-4">
+                                <div class="flex items-center space-x-3">
+                                    <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-500/40 font-mono font-extrabold text-xs">
+                                        Envoi #ID-{{ rep.id }}
+                                    </span>
+                                    <div>
+                                        <p class="text-sm font-extrabold text-white">
+                                            De : {{ rep.project.student.get_full_name|default:rep.project.student.username }}
+                                            <span class="text-xs font-normal text-slate-400">&lt;{{ rep.project.student.email }}&gt;</span>
+                                        </p>
+                                        <p class="text-[11px] text-sky-400 font-semibold">Sujet  : {{ rep.project.subject.title }}</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center space-x-3">
+                                    <span class="text-xs text-slate-400 font-mono">📅 Reçu le {{ rep.uploaded_at|date:"d/m/Y à H:i" }}</span>
+                                    <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/30">En attente de retour</span>
+                                </div>
+                            </div>
+
+                            
+                            <div class="grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-white/10">
+                                
+                                
+                                <div class="lg:col-span-7 p-6 space-y-5 flex flex-col justify-between">
+                                    <div class="space-y-4">
+                                        
+                                        <div class="bg-slate-950/60 p-4 rounded-2xl border border-slate-800 space-y-1.5">
+                                            <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">✉️ Message / Description de l'étudiant :</span>
+                                            <p class="text-xs text-slate-200 leading-relaxed">
+                                                {{ rep.description|default:"Aucune description fournie avec ce document." }}
+                                            </p>
+                                        </div>
+
+                                        
+                                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 flex items-center justify-between gap-4">
+                                            <div class="flex items-center space-x-3 overflow-hidden">
+                                                <div class="w-10 h-10 rounded-xl bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-lg shrink-0">
+                                                    📎
+                                                </div>
+                                                <div class="overflow-hidden">
+                                                    <p class="text-xs font-bold text-white truncate">{{ rep.file.name }}</p>
+                                                    <p class="text-[10px] text-slate-400">Document attaché à l'envoi #ID-{{ rep.id }}</p>
+                                                </div>
+                                            </div>
+                                            {% if rep.file %}
+                                                <a href="{{ rep.file.url }}" target="_blank" class="bg-slate-800 hover:bg-sky-500 hover:text-slate-950 text-sky-300 font-bold px-4 py-2 rounded-xl text-xs border border-slate-700 transition shrink-0">
+                                                    📖 Ouvrir / Lire le fichier
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    
+                                    <form method="POST" class="space-y-3 pt-2 border-t border-white/10">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_id" value="{{ rep.id }}">
+                                        <div>
+                                            <label class="block text-[11px] font-extrabold text-emerald-400 uppercase mb-1.5">
+                                                ✍️ Votre Commentaire (sera rattaché à #ID-{{ rep.id }} chez l'étudiant) :
+                                            </label>
+                                            <textarea id="comment-box-{{ rep.id }}" name="supervisor_comment" rows="3" required placeholder="Rédigez vos remarques ou cliquez sur 'Insérer la synthèse IA' à droite..." class="w-full px-4 py-3 rounded-2xl bg-slate-950 border border-slate-700 text-white text-xs focus:outline-none focus:border-emerald-500"></textarea>
+                                        </div>
+                                        <button type="submit" name="submit_report_comment" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold py-3 rounded-2xl text-xs transition shadow-lg flex items-center justify-center space-x-2">
+                                            <span>✅ Envoyer le Commentaire</span>
+                                        </button>
+                                    </form>
+                                </div>
+
+                                
+                                <div class="lg:col-span-5 p-6 bg-slate-950/50 flex flex-col justify-between space-y-4">
+                                    <div class="space-y-3">
+                                        <div class="flex items-center justify-between">
+                                            <div class="flex items-center space-x-2">
+                                                <span class="text-base">🤖</span>
+                                                <h4 class="text-xs font-extrabold text-sky-300 uppercase tracking-wider">Mini-Chatbot </h4>
+                                            </div>
+                                            <span class="text-[10px] bg-sky-500/15 text-sky-300 px-2 py-0.5 rounded-md border border-sky-500/30">Lit le PDF/Word #ID-{{ rep.id }}</span>
+                                        </div>
+                                        <p class="text-[11px] text-slate-400 leading-relaxed">
+                                            Pas le temps de lire tout le document ? Posez une question ciblée au robot sur ce fichier ou utilisez un bouton rapide :
+                                        </p>
+
+                                        
+                                        <div class="flex flex-wrap gap-1.5">
+                                            <button type="button" data-report="{{ rep.id }}" data-q="Fais-moi un résumé exécutif de ce rapport et de son avancement." onclick="fillQuickQuestion(this)" class="text-[10px] bg-slate-900 hover:bg-sky-500/20 text-slate-300 hover:text-sky-300 px-2.5 py-1 rounded-lg border border-slate-800 transition">
+                                                ⚡ Résumer ce rapport
+                                            </button>
+                                            <button type="button" data-report="{{ rep.id }}" data-q="Quelles sont l'architecture technique et la base de données décrites dans ce document ?" onclick="fillQuickQuestion(this)" class="text-[10px] bg-slate-900 hover:bg-sky-500/20 text-slate-300 hover:text-sky-300 px-2.5 py-1 rounded-lg border border-slate-800 transition">
+                                                🏗️ Vérifier Architecture 
+                                            </button>
+                                            <button type="button" data-report="{{ rep.id }}" data-q="Quels sont les points faibles ou les manques de ce rapport pour rédiger mon commentaire ?" onclick="fillQuickQuestion(this)" class="text-[10px] bg-slate-900 hover:bg-sky-500/20 text-slate-300 hover:text-sky-300 px-2.5 py-1 rounded-lg border border-slate-800 transition">
+                                                🔍 Détecter les lacunes
+                                            </button>
+                                        </div>
+
+                                        
+                                        <div class="bg-slate-900/90 p-4 rounded-2xl border border-slate-800 min-h-[140px] max-h-56 overflow-y-auto space-y-2 text-xs">
+                                            {% if active_rag_report_id == rep.id and rag_answer %}
+                                                <p class="text-[10px] font-bold text-amber-300">❓ Question : "{{ rag_question }}"</p>
+                                                <div id="rag-answer-text-{{ rep.id }}" class="text-slate-200 leading-relaxed whitespace-pre-line">{{ rag_answer }}</div>
+                                                <button type="button" data-report="{{ rep.id }}" onclick="copyRagToComment(this)" class="mt-2 inline-flex items-center space-x-1 text-[10px] bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 px-3 py-1 rounded-lg border border-emerald-500/30 font-bold transition">
+                                                    <span>⬅️ Insérer cette réponse dans mon commentaire</span>
+                                                </button>
+                                            {% else %}
+                                                <div class="h-full flex flex-col items-center justify-center text-center py-6 text-slate-500 space-y-1">
+                                                    <p class="text-lg">💬</p>
+                                                    <p class="text-[11px]">Interrogez le document #ID-{{ rep.id }} ci-dessous pour obtenir une analyse instantanée.</p>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    
+                                    <form method="POST" class="flex gap-2">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="report_id" value="{{ rep.id }}">
+                                        <input type="text" id="rag-input-{{ rep.id }}" name="query_text" required placeholder="Posez une question ciblée sur ce document..." class="flex-1 px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:outline-none focus:border-sky-500">
+                                        <button type="submit" name="rag_query" class="bg-sky-500 hover:bg-sky-600 text-slate-950 font-extrabold px-4 py-2.5 rounded-xl text-xs transition shrink-0">
+                                            Demander IA
+                                        </button>
+                                    </form>
+                                </div>
+
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="glass-card p-14 rounded-3xl border border-white/10 text-center space-y-3 shadow-xl">
+                    <p class="text-4xl">🎉</p>
+                    <h3 class="text-lg font-extrabold text-white">Votre boîte de réception est à jour !</h3>
+                    <p class="text-xs text-slate-400 max-w-md mx-auto leading-relaxed">
+                        Tous les rapports envoyés par vos étudiants ont été commentés. Dès qu'un étudiant déposera une nouvelle version PDF ou Word avec une nouvelle description, son message apparaîtra ici.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="content-group" class="dashboard-section space-y-6 hidden">
+            <div class="glass-card rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col h-[76vh]">
+                
+            
+                <div class="bg-slate-900/95 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                    <div class="flex items-center space-x-3.5">
+                        <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-slate-950 font-extrabold text-base shadow-lg">
+                            💬
+                        </div>
+                        <div>
+                            <h2 class="text-sm font-extrabold text-white flex items-center space-x-2">
+                                <span>Groupe   Engr. {{ request.user.get_full_name|default:request.user.username }}</span>
+                                <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Canal Officiel</span>
+                            </h2>
+                            <p class="text-[11px] text-slate-400 truncate max-w-xl">
+                                Participants ({{ group_members|length|default:1 }}) : Vous +
+                                {% for member in group_members %}
+                                    {% if member != request.user %}{{ member.get_full_name|default:member.username }}{% if not forloop.last %}, {% endif %}{% endif %}
+                                {% empty %}
+                                    Aucun étudiant assigné pour l'instant
+                                {% endfor %}
+                            </p>
+                        </div>
+                    </div>
+                    <span class="text-[10px] text-emerald-400 font-semibold hidden sm:inline">Tous vos étudiants supervisés voient et peuvent répondre</span>
+                </div>
+
+            
+                <div id="whatsappChatBox" class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-950/50">
+                    {% if group_messages %}
+                        {% for msg in group_messages %}
+                            {% if msg.sender == request.user %}
+                                
+                                <div class="flex justify-end">
+                                    <div class="max-w-md bg-amber-500/20 border border-amber-500/40 rounded-2xl rounded-tr-none px-4 py-2.5 text-xs space-y-1 shadow-md">
+                                        <div class="flex items-center justify-between space-x-4">
+                                            <span class="font-extrabold text-amber-300 text-[10px]">👨‍🏫 Vous (Encadrant)</span>
+                                            <span class="text-[9px] text-slate-400 font-mono">{{ msg.created_at|date:"d/m H:i" }}</span>
+                                        </div>
+                                        <p class="text-white leading-relaxed">{{ msg.content }}</p>
+                                    </div>
+                                </div>
+                            {% else %}
+                                
+                                <div class="flex justify-start">
+                                    <div class="max-w-md bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs space-y-1 shadow-md">
+                                        <div class="flex items-center justify-between space-x-4">
+                                            <span class="font-extrabold text-emerald-400 text-[10px]">🎓 {{ msg.sender.get_full_name|default:msg.sender.username }}</span>
+                                            <span class="text-[9px] text-slate-400 font-mono">{{ msg.created_at|date:"d/m H:i" }}</span>
+                                        </div>
+                                        <p class="text-slate-200 leading-relaxed">{{ msg.content }}</p>
+                                    </div>
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% else %}
+                        <div class="h-full flex flex-col items-center justify-center text-center space-y-2 opacity-75">
+                            <p class="text-3xl">📢</p>
+                            <p class="text-sm font-bold text-white">Démarrez la discussion avec votre groupe d'étudiants</p>
+                            <p class="text-xs text-slate-400 max-w-md">Vos consignes, rappels de réunions et réponses envoyés ici seront visibles par tous les étudiants que vous encadrez.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                
+                <form method="POST" class="bg-slate-900/95 p-4 border-t border-white/10 flex items-center gap-3">
+                    {% csrf_token %}
+                    <input type="text" name="message_content" required placeholder="Envoyer un message ou une consigne à tous vos étudiants..." class="flex-1 px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500">
+                    <button type="submit" name="send_group_message" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-6 py-3 rounded-2xl text-xs transition shadow-lg shrink-0">
+                        Envoyer ➤
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div id="content-jury" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider mb-2">Planification des Soutenances</span>
+                    <h1 class="text-3xl font-extrabold text-white">Espace Jury, Salles & Créneaux de Soutenance</h1>
+                    <p class="text-sm text-slate-300 mt-1">Consultez les étudiants que vous évaluez en jury, les salles attribuées, les dates, les heures et les PV officiels.</p>
+                </div>
+                {% if jury_unlocked %}
+                    <span class="px-4 py-2 rounded-2xl bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 font-extrabold text-xs">
+                        🔓 Module Jury Débloqué ({{ jury_assignments|length }} passage(s))
+                    </span>
+                {% else %}
+                    <span class="px-4 py-2 rounded-2xl bg-slate-900 text-slate-400 border border-slate-800 font-bold text-xs">
+                        🔒 En attente d'assignation Admin
+                    </span>
+                {% endif %}
+            </div>
+
+            {% if jury_unlocked %}
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {% for item in jury_assignments %}
+                        <div class="glass-card p-6 rounded-3xl border border-purple-500/30 space-y-4 shadow-xl flex flex-col justify-between">
+                            <div class="space-y-3">
+                                <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                    <span class="px-3 py-1 rounded-xl bg-purple-500/20 text-purple-300 font-extrabold text-xs border border-purple-500/30">
+                                        🏛️ Salle : {{ item.room|default:"Amphi A / Salle Jury 1" }}
+                                    </span>
+                                    <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-bold text-xs border border-amber-500/30">
+                                        📅 {{ item.date_str|default:"Date planifiée" }} • ⏰ {{ item.time_str|default:"09:00" }}
+                                    </span>
+                                </div>
+
+                                <div>
+                                    <span class="text-[10px] font-bold uppercase text-emerald-400">
+                                        🎓 Candidat ({{ item.project.student.filiere|default:"Génie Logiciel" }}) : {{ item.project.student.get_full_name|default:item.project.student.username }}
+                                    </span>
+                                    <h3 class="text-base font-extrabold text-white mt-1">{{ item.project.subject.title }}</h3>
+                                </div>
+
+                                <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 text-xs space-y-1 text-slate-300">
+                                    <p><strong>Matricule :</strong> <span class="font-mono text-emerald-400">{{ item.project.student.matricule|default:"ICTU2026" }}</span></p>
+                                    <p><strong>Votre rôle :</strong> <span class="text-sky-300 font-semibold">{{ item.role_in_jury|default:"Membre du Jury / Examinateur" }}</span></p>
+                                    <p><strong>Encadrant du projet :</strong> {{ item.project.supervisor.get_full_name|default:item.project.supervisor.username }}</p>
+                                </div>
+                            </div>
+
+                            <div class="pt-3 flex items-center justify-between gap-3">
+                                <a href="{% url 'scheduling:download_pv' item.project.id %}" target="_blank" class="flex-1 text-center bg-slate-800 hover:bg-emerald-500 hover:text-slate-950 text-emerald-400 border border-slate-700 py-2.5 rounded-xl text-xs font-extrabold transition">
+                                    📄 Télécharger le PV de Soutenance
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="glass-card p-14 rounded-3xl border border-white/10 text-center space-y-3 shadow-2xl">
+                    <p class="text-4xl">🔒</p>
+                    <h2 class="text-xl font-extrabold text-white">Module Jury Verrouillé</h2>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        Ce module se débloquera automatiquement dès que l'administration aura lancé la planification des soutenances (Google OR-Tools) et vous aura affecté à un jury. Vous y verrez alors vos salles, les jours, les heures et la liste des candidats à évaluer.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="content-profile" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl flex items-center space-x-4">
+                <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center text-slate-950 font-extrabold text-2xl shadow-xl">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                    <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-bold bg-sky-500/20 text-sky-300 border border-sky-500/30 uppercase tracking-wider mb-1">Fiche Enseignant</span>
+                    <h1 class="text-2xl font-extrabold text-white">Pr. {{ request.user.get_full_name|default:request.user.username }}</h1>
+                    <p class="text-xs text-slate-400 font-mono">{{ request.user.email }}</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div class="lg:col-span-2 glass-card p-8 rounded-3xl border border-white/10 shadow-xl space-y-6">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">📋 Informations Professionnelles</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Nom Complet</p>
+                            <p class="text-sm font-bold text-white mt-1">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Identifiant / Login</p>
+                            <p class="text-sm font-mono font-bold text-sky-400 mt-1">{{ request.user.username }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Téléphone</p>
+                            <p class="text-sm font-semibold text-white mt-1">{{ request.user.phone_number|default:"Non renseigné" }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Quartier & Âge</p>
+                            <p class="text-sm font-semibold text-white mt-1">{{ request.user.quartier|default:"Non renseigné" }} {% if request.user.age %}({{ request.user.age }} ans){% endif %}</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 space-y-2">
+                        <p class="text-[10px] text-amber-400 uppercase font-bold">Spécialités Techniques Associées :</p>
+                        <div class="flex flex-wrap gap-2">
+                            {% for spec in request.user.specialites %}
+                                <span class="px-3 py-1 rounded-xl bg-amber-500/15 text-amber-300 border border-amber-500/30 text-xs font-bold">{{ spec }}</span>
+                            {% empty %}
+                                <span class="text-xs text-slate-400 italic">Aucune spécialité enregistrée.</span>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">✏️ Modifier mes coordonnées</h3>
+                    <form method="POST" class="space-y-3 text-xs">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Téléphone</label>
+                            <input type="text" name="phone_number" value="{{ request.user.phone_number|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Quartier</label>
+                            <input type="text" name="quartier" value="{{ request.user.quartier|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Âge</label>
+                            <input type="number" name="age" value="{{ request.user.age|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <button type="submit" name="update_profile" class="w-full bg-sky-500 hover:bg-sky-600 text-slate-950 font-extrabold py-2.5 rounded-xl transition shadow-lg mt-2">
+                            Enregistrer
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    let sidebarOpen = true;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const mainContent = document.getElementById('mainContent');
+        const openBtn = document.getElementById('openSidebarBtn');
+
+        sidebarOpen = !sidebarOpen;
+        if (sidebarOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            mainContent.classList.add('md:ml-72');
+            openBtn.classList.add('hidden');
+            openBtn.classList.remove('flex');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            mainContent.classList.remove('md:ml-72');
+            openBtn.classList.remove('hidden');
+            openBtn.classList.add('flex');
+        }
+    }
+
+    function switchSection(sectionId, event) {
+        if (event) event.preventDefault();
+        const sections = ['home', 'projects', 'group', 'jury', 'profile'];
+        sections.forEach(sec => {
+            const el = document.getElementById('content-' + sec);
+            if (el) el.classList.add('hidden');
+        });
+        
+        const target = document.getElementById('content-' + sectionId);
+        if (target) target.classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent";
+            if (link.getAttribute('href') === '#' + sectionId) {
+                link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-sky-500/25 to-emerald-500/10 text-sky-300 border border-sky-500/30 shadow-lg";
+            }
+        });
+
+        localStorage.setItem('activeSupervisorTab', sectionId);
+
+        if (sectionId === 'group') {
+            const chatBox = document.getElementById('whatsappChatBox');
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        if (window.innerWidth < 768 && sidebarOpen) {
+            toggleSidebar();
+        }
+    }
+
+    
+    function fillQuickQuestion(btn) {
+        const reportId = btn.getAttribute('data-report');
+        const question = btn.getAttribute('data-q');
+        const input = document.getElementById('rag-input-' + reportId);
+        if (input) {
+            input.value = question;
+            input.focus();
+        }
+    }
+
+    
+    function copyRagToComment(btn) {
+        const reportId = btn.getAttribute('data-report');
+        const answerEl = document.getElementById('rag-answer-text-' + reportId);
+        const commentBox = document.getElementById('comment-box-' + reportId);
+        if (answerEl && commentBox) {
+            commentBox.value = answerEl.innerText.trim();
+            commentBox.focus();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTab = localStorage.getItem('activeSupervisorTab');
+        if (savedTab) {
+            switchSection(savedTab, null);
+        }
+    });
+</script>
+{% endblock %}

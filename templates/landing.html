@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Accueil | ThesisPulse {% endblock %}
+
+{% block nav_links %}
+<div class="hidden md:flex space-x-8 items-center font-medium text-sm text-emerald-100">
+    <a href="/" class="hover:text-white transition">Accueil</a>
+    <a href="{% url 'about' %}" class="hover:text-white transition">À propos</a>
+    <a href="{% url 'programs' %}" class="hover:text-white transition">Programmes</a>
+    <a href="{% url 'contact' %}" class="hover:text-white transition">Contact</a>
+</div>
+
+<div class="flex items-center space-x-4 ml-4">
+    <a href="{% url 'login' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold text-sm px-5 py-2.5 rounded-xl shadow-lg transition transform hover:-translate-y-0.5">Se connecter</a>
+</div>
+{% endblock %}
+
+{% block content %}
+
+<section class="hero-pattern text-white pt-32 pb-24 lg:pt-40 lg:pb-32 relative overflow-hidden text-center">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 flex flex-col items-center">
+        
+        
+        <span class="inline-flex items-center space-x-2 bg-emerald-500/30 text-emerald-200 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mb-6 border border-emerald-400/40 backdrop-blur-md">
+            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Simplifiez la gestion académique</span>
+        </span>
+
+        
+        <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight leading-tight mb-6 drop-shadow-md">
+            L'Excellence Académique  <span class="text-emerald-400"> L'ère nouvelle</span>
+        </h1>
+
+        
+        <p class="text-lg sm:text-xl text-slate-200 mb-10 max-w-2xl leading-relaxed font-light drop-shadow">
+            Simplifiez la gestion des sujets, et le suivi des encadrants, et planifiez des soutenances.
+        </p>
+
+        
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
+            
+            
+            <a href="{% url 'login' %}" class="bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-8 py-4 rounded-2xl shadow-2xl shadow-emerald-950/60 transition transform hover:-translate-y-0.5 flex items-center space-x-3 text-base">
+                <span>🔐 Accéder à l'Espace Sécurisé</span>
+            </a>
+
+            
+            <a href="#about" class="w-full sm:w-auto glass-card hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-2xl transition flex items-center justify-center space-x-2 border border-white/20 shadow-lg">
+                <span>Découvrir les fonctionnalités</span>
+            </a>
+        </div>
+
+    </div>
+</section>
+
+
+<section id="about" class="py-24 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">À propos de ThesisPulse</h2>
+            <p class="text-slate-600">Une architecture moderne pensée pour simplifier la vie administrative et académique des universités du supérieur.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="p-8 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center font-bold text-lg mb-4">🔒</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Sécurité & RBAC</h3>
+                <p class="text-sm text-slate-600">Gestion granulaire des rôles par l'administration et traçabilité immuable.</p>
+            </div>
+            <div class="p-8 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center font-bold text-lg mb-4">⚡</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Intelligence Artificielle</h3>
+                <p class="text-sm text-slate-600">Assistance automatisée pour la validation des sujets et l'analyse sémantique des rapports.</p>
+            </div>
+            <div class="p-8 bg-slate-50 rounded-3xl border border-slate-100 shadow-sm hover:shadow-md transition">
+                <div class="w-12 h-12 bg-emerald-100 text-emerald-700 rounded-2xl flex items-center justify-center font-bold text-lg mb-4">📅</div>
+                <h3 class="font-bold text-lg text-slate-900 mb-2">Planification Intelligente</h3>
+                <p class="text-sm text-slate-600">Algorithmes de contraintes pour générer des plannings de soutenance et éditer les PV.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="programs" class="py-24 bg-slate-50 border-t border-slate-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto mb-16">
+            <h2 class="text-3xl font-bold text-slate-900 mb-4">Le Parcours Académique</h2>
+            <p class="text-slate-600">Les 4 grandes étapes intégrées dans le cycle de vie de la plateforme.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Étape 01</span>
+                <h3 class="font-bold text-slate-900 text-lg mt-2 mb-1">Soumission</h3>
+                <p class="text-xs text-slate-600">Proposition des sujets par l'étudiant avec analyse instantanée par SmartSujet.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Étape 02</span>
+                <h3 class="font-bold text-slate-900 text-lg mt-2 mb-1">Affectation</h3>
+                <p class="text-xs text-slate-600">Matching automatique suggérant le Top 3 d'affinité avec les encadrants.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Étape 03</span>
+                <h3 class="font-bold text-slate-900 text-lg mt-2 mb-1">Suivi RAG</h3>
+                <p class="text-xs text-slate-600">Dépôt des rapports et interrogation par mini-chatbot sémantique.</p>
+            </div>
+            <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200">
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Étape 04</span>
+                <h3 class="font-bold text-slate-900 text-lg mt-2 mb-1">Soutenance</h3>
+                <p class="text-xs text-slate-600">Planification anti-conflits et génération automatisée des PV officiels.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section id="contact" class="py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+        <h2 class="text-3xl font-bold text-slate-900 mb-4">Besoin d'assistance ?</h2>
+        <p class="text-slate-600 mb-8">Pour toute question relative au déploiement de la plateforme dans votre institution, contactez notre support technique.</p>
+        <div class="inline-block bg-emerald-50 border border-emerald-200 px-8 py-4 rounded-2xl shadow-sm">
+            <p class="text-emerald-900 font-semibold text-sm">Contact Support : <a href="mailto:support@thesispulse.edu" class="underline text-emerald-700">support@thesispulse.edu</a></p>
+        </div>
+    </div>
+</section>
+{% endblock %}

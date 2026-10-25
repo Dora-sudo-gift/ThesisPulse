@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block title %}Programmes & Workflow | ThesisPulse{% endblock %}
+
+{% block content %}
+
+
+<div class="max-w-7xl mx-auto px-6 pt-24 absolute top-0 left-0 right-0 z-20 flex justify-between items-center">
+    <a href="/" class="inline-flex items-center space-x-2 bg-white/10 hover:bg-white/20 text-white text-xs font-semibold px-4 py-2 rounded-xl backdrop-blur transition border border-white/10">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
+        <span>Retour à l'accueil</span>
+    </a>
+</div>
+
+<section class="hero-pattern text-white pt-36 pb-20 text-center relative overflow-hidden">
+    <div class="max-w-4xl mx-auto px-6 relative z-10">
+        <span class="inline-block bg-emerald-500/20 text-emerald-300 text-xs font-bold px-4 py-1.5 rounded-full uppercase tracking-wider mb-4 border border-emerald-500/30">Cycle de Vie PFE</span>
+        <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight mb-4">Le Parcours Académique & Workflow</h1>
+        <p class="text-slate-300 text-lg max-w-2xl mx-auto font-light">Découvrez les 4 étapes structurées qui accompagnent l'étudiant, de la soumission de son sujet jusqu'à la délivrance du procès-verbal de soutenance.</p>
+    </div>
+</section>
+
+
+<section class="py-24 bg-white">
+    <div class="max-w-5xl mx-auto px-6">
+        <div class="relative border-l-2 border-emerald-500/30 ml-4 sm:ml-32 space-y-16">
+            
+            <!-- Étape 1 -->
+            <div class="relative pl-8 sm:pl-12 group">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-white">1</div>
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Phase Initiale</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1 mb-3">Soumission des Sujets (SmartSujet)</h3>
+                <p class="text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    L'étudiant soumet ses propositions de projets de fin d'études. Le module intelligent <strong>SmartSujet</strong> analyse instantanément le contenu à l'aide de filtres NLP pour évaluer la pertinence, la faisabilité technique et l'originalité du sujet, attribuant un score prédictif indicatif.
+                </p>
+            </div>
+
+            
+            <div class="relative pl-8 sm:pl-12 group">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-white">2</div>
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Phase d'Affectation</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1 mb-3">Matching Intelligent & Validation</h3>
+                <p class="text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    Grâce à l'analyse sémantique des compétences et des thématiques, la plateforme suggère à l'administration un <strong>Top 3 d'affinité</strong> entre les profils des étudiants et les domaines d'expertise des enseignants encadrants, optimisant ainsi l'attribution des projets.
+                </p>
+            </div>
+
+            
+            <div class="relative pl-8 sm:pl-12 group">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-white">3</div>
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Phase de Suivi</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1 mb-3">Dépôt des Rapports & Assistant RAG</h3>
+                <p class="text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    Tout au long du semestre, les rapports intermédiaires au format PDF sont téléchargés et indexés dans la base vectorielle (`pgvector`). L'encadrant peut ainsi dialoguer avec un mini-chatbot contextuel pour auditer rapidement les avancées et vérifier la conformité du travail.
+                </p>
+            </div>
+
+            
+            <div class="relative pl-8 sm:pl-12 group">
+                <div class="absolute -left-[17px] top-0 w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center font-bold text-sm shadow-lg ring-4 ring-white">4</div>
+                <span class="text-xs font-bold text-emerald-600 uppercase tracking-widest">Phase Finale</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1 mb-3">Planification OR-Tools & Édition des PV</h3>
+                <p class="text-slate-600 leading-relaxed bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm">
+                    Le module de planification utilise <strong>Google OR-Tools</strong> pour générer automatiquement les plannings de soutenance sans aucun chevauchement de jury ou de salle. Une fois la soutenance validée, les Procès-Verbaux officiels sont générés instantanément en PDF.
+                </p>
+            </div>
+
+        </div>
+    </div>
+</section>
+{% endblock %}

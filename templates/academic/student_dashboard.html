@@ -1,0 +1,794 @@
+{% extends 'base.html' %}
+
+{% block title %}Espace Étudiant | ThesisPulse{% endblock %}
+
+{% block content %}
+<div class="min-h-screen hero-pattern text-slate-100 flex relative overflow-x-hidden">
+
+  
+    <button id="openSidebarBtn" onclick="toggleSidebar()" class="fixed top-5 left-5 z-50 p-3 rounded-2xl bg-slate-900/85 backdrop-blur-xl text-emerald-400 hover:text-white hover:bg-emerald-600/30 shadow-2xl border border-white/15 transition-all duration-300 hidden items-center space-x-2 group">
+        <svg class="w-5 h-5 transition-transform duration-300 group-hover:scale-110" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+        </svg>
+        <span class="text-xs font-bold tracking-wider uppercase pr-1">Menu</span>
+    </button>
+
+    <aside id="appSidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-slate-950/40 backdrop-blur-2xl border-r border-white/10 transition-transform duration-300 ease-in-out transform translate-x-0 flex flex-col shadow-2xl">
+ 
+        
+        <div class="h-20 flex items-center justify-between px-6 border-b border-white/10">
+            <div class="flex items-center space-x-3">
+                <span class="relative flex h-3 w-3">
+                    <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span class="relative inline-flex rounded-full h-3 w-3 bg-emerald-500"></span>
+                </span>
+                <div>
+                    <span class="text-xs font-extrabold uppercase tracking-widest text-white block">Espace Étudiant</span>
+                    <span class="text-[10px] text-emerald-400 font-mono">{{ request.user.matricule|default:"Candidat PFE" }}</span>
+                </div>
+            </div>
+            <button onclick="toggleSidebar()" title="Réduire la barre latérale" class="p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white border border-white/10 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                </svg>
+            </button>
+        </div>
+
+        
+        <div class="flex-1 py-6 px-4 space-y-2 overflow-y-auto">
+            <p class="px-3 text-[10px] uppercase tracking-wider font-bold text-emerald-400/80 mb-3">Navigation </p>
+            
+            <a href="#home" onclick="switchSection('home', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-emerald-500/25 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-lg">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">🏠</span>
+                    <span>Home</span>
+                </div>
+            </a>
+
+            <a href="#submit" onclick="switchSection('submit', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">🧠</span>
+                    <span>Soumettre</span>
+                </div>
+                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-mono">{{ total_submitted|default:0 }}</span>
+            </a>
+
+            <a href="#reports" onclick="switchSection('reports', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">📄</span>
+                    <span>Rapports</span>
+                </div>
+                <span class="text-[10px] bg-white/10 px-2 py-0.5 rounded-full text-slate-300 font-mono">{{ reports|length|default:0 }}</span>
+            </a>
+
+            <a href="#group" onclick="switchSection('group', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">💬</span>
+                    <span>Groupe</span>
+                </div>
+                {% if assigned_supervisor %}
+                    <span class="h-2 w-2 rounded-full bg-emerald-400"></span>
+                {% endif %}
+            </a>
+
+            <a href="#defense" onclick="switchSection('defense', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">🎓</span>
+                    <span>Soutenance</span>
+                </div>
+                {% if student_defense %}
+                    <span class="px-2 py-0.5 rounded-full text-[9px] font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">🔓 Publié</span>
+                {% else %}
+                    <span class="text-[10px] text-slate-500">🔒</span>
+                {% endif %}
+            </a>
+
+            <a href="#profile" onclick="switchSection('profile', event)" class="sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent">
+                <div class="flex items-center space-x-3.5">
+                    <span class="text-base">👤</span>
+                    <span>Profil</span>
+                </div>
+            </a>
+        </div>
+
+        <div class="p-4 border-t border-white/10 bg-slate-950/60 space-y-3">
+            <div class="flex items-center space-x-3 px-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-emerald-400 to-teal-700 flex items-center justify-center text-slate-950 font-extrabold text-sm shadow-md shrink-0">
+                    {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="overflow-hidden">
+                    <p class="text-xs font-bold text-white truncate">{{ request.user.get_full_name|default:request.user.username }}</p>
+                    <p class="text-[10px] text-emerald-400 font-medium truncate">Filière : {{ request.user.filiere|default:"Génie Logiciel" }}</p>
+                </div>
+            </div>
+            <form action="{% url 'login' %}" method="post" class="w-full">
+                {% csrf_token %}
+                <button type="submit" class="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-rose-500/15 to-red-600/15 hover:from-rose-500/30 hover:to-red-600/30 text-rose-300 hover:text-white text-xs font-bold transition-all duration-200 border border-rose-500/25 hover:border-rose-500/50 flex items-center justify-center space-x-2 shadow-lg group">
+                    <svg class="w-4 h-4 text-rose-400 group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                    </svg>
+                    <span>Se déconnecter</span>
+                </button>
+            </form>
+        </div>
+    </aside>
+
+    <div id="mainContent" class="flex-1 md:ml-72 p-6 lg:p-10 space-y-8 transition-all duration-300">
+
+        {% if messages %}
+            <div id="toast-container" class="fixed top-6 right-6 z-50 space-y-3 max-w-md w-full">
+                {% for message in messages %}
+                    <div class="toast-item glass-card p-4 rounded-2xl text-xs font-semibold shadow-2xl flex items-center justify-between border {% if message.tags == 'error' %}bg-red-950/90 text-red-200 border-red-500/40{% else %}bg-emerald-950/90 text-emerald-200 border-emerald-500/40{% endif %}">
+                        <span>{{ message }}</span>
+                        <button onclick="this.parentElement.remove()" class="text-slate-400 hover:text-white ml-3 font-bold text-base">×</button>
+                    </div>
+                {% endfor %}
+            </div>
+            <script>
+                setTimeout(() => {
+                    const container = document.getElementById('toast-container');
+                    if (container) {
+                        container.style.transition = 'opacity 0.2s ease';
+                        container.style.opacity = '0';
+                        setTimeout(() => container.remove(), 500);
+                    }
+                }, 5000);
+            </script>
+        {% endif %}
+
+        <div id="content-home" class="dashboard-section space-y-8">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-2xl backdrop-blur-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-2">Tableau de Bord</span>
+                    <h1 class="text-3xl font-extrabold text-white">Bienvenue, {{ request.user.first_name|default:request.user.username }} 👋</h1>
+                    <p class="text-sm text-slate-300 mt-1">propositions de sujets, annonces officielles et l'avancement avec votre encadrant.</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets proposes</p>
+                    <h3 class="text-3xl font-extrabold text-blue-400 mt-2">{{ total_submitted|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Propositions </p>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets Acceptés</p>
+                    <h3 class="text-3xl font-extrabold text-emerald-400 mt-2">{{ total_accepted|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Validés par l'administration ✅</p>
+                </div>
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl">
+                    <p class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">Sujets Refusés</p>
+                    <h3 class="text-3xl font-extrabold text-rose-400 mt-2">{{ total_rejected|default:0 }}</h3>
+                    <p class="text-[11px] text-slate-400 mt-1">Thèmes rejetés ❌</p>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl border {% if assigned_supervisor %}border-amber-500/40 bg-amber-500/5{% else %}border-white/10{% endif %} shadow-xl flex flex-col justify-between">
+                    <p class="text-[10px] text-amber-400 uppercase font-bold tracking-wider">👨‍🏫 Votre Encadrant</p>
+                    {% if assigned_supervisor %}
+                        <div class="mt-2">
+                            <h3 class="text-base font-extrabold text-white truncate">{{ assigned_supervisor.get_full_name|default:assigned_supervisor.username }}</h3>
+                            <p class="text-[11px] text-slate-300 truncate">{{ assigned_supervisor.email }}</p>
+                            {% if assigned_supervisor.phone_number %}
+                                <p class="text-[10px] text-emerald-400 font-mono mt-1">📞 {{ assigned_supervisor.phone_number }}</p>
+                            {% endif %}
+                        </div>
+                    {% else %}
+                        <div class="mt-2">
+                            <p class="text-xs font-bold text-slate-300">En attente d'assignation</p>
+                            <p class="text-[10px] text-slate-400 mt-0.5">Un encadrant vous sera attribué dès validation d'un sujet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+ 
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+ 
+                <div class="lg:col-span-2 glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">📅 Événements Disponibles</h3>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Calendrier </span>
+                    </div>
+                    {% if events %}
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {% for ev in events %}
+                                <div class="bg-slate-900/75 p-4 rounded-2xl border border-slate-800 hover:border-emerald-500/40 transition space-y-2">
+                                    <div class="flex items-center justify-between">
+                                        <span class="font-extrabold text-emerald-400 text-xs">🔔 {{ ev.title }}</span>
+                                        <span class="text-[10px] bg-white/5 px-2 py-0.5 rounded-md text-amber-300 font-mono">{{ ev.date|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                    <p class="text-xs text-slate-300 leading-relaxed">{{ ev.description }}</p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="bg-slate-900/50 p-8 rounded-2xl border border-slate-800 text-center space-y-2">
+                            <p class="text-2xl">📭</p>
+                            <p class="text-xs text-slate-400">Aucun événement programmé par l'administration pour le moment.</p>
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col justify-between space-y-4">
+                    <div class="space-y-3">
+                        <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">🎯 Thème  Retenu</h3>
+                        {% if accepted_subject %}
+                            <div class="bg-emerald-500/10 p-4 rounded-2xl border border-emerald-500/30 space-y-2">
+                                <span class="px-2 py-0.5 rounded bg-emerald-500 text-slate-950 font-extrabold text-[10px] uppercase">Projet Officiel</span>
+                                <h4 class="text-sm font-extrabold text-white">{{ accepted_subject.title }}</h4>
+                                <p class="text-xs text-slate-300 line-clamp-3">{{ accepted_subject.abstract }}</p>
+                            </div>
+                        {% else %}
+                            <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800 text-xs text-slate-400 space-y-2">
+                                <p>Vous n'avez pas encore de sujet définitivement validé.</p>
+                                <p class="text-emerald-400 font-semibold">Utilisez la rubrique 2 pour soumettre vos propositions au moteur SmartSujet.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    <div class="space-y-2">
+                        {% if student_defense %}
+                            <button onclick="switchSection('defense', null)" class="w-full py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/40 text-xs font-extrabold transition">
+                                🎓 Voir ma Soutenance & Télécharger le PV
+                            </button>
+                        {% endif %}
+                        <button onclick="switchSection('group', null)" class="w-full py-3 rounded-xl bg-white/5 hover:bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-xs font-bold transition">
+                            💬 Ouvrir le Groupe WhatsApp d'Encadrement
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="content-submit" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-blue-500/20 text-blue-300 border border-blue-500/30 uppercase tracking-wider mb-2">SmartSujet</span>
+                <h1 class="text-3xl font-extrabold text-white">Soumission de Sujets </h1>
+                <p class="text-sm text-slate-300 mt-1">Soumission de sujets et evalution grace au SmartSujet IA .</p>
+            </div>
+
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+
+                <div class="lg:col-span-5 glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl self-start">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">📝 Proposer un Nouveau Thème</h3>
+                    <form method="POST" class="space-y-3.5">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Titre Complet du Projet</label>
+                            <input type="text" name="title" required placeholder="Ex: Conception d'un système distribué de télémédecine..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-400 uppercase mb-1">Problème réel de la société </label>
+                            <textarea name="abstract" rows="3" required placeholder="Quel problème concret de la société ce projet résout-il ? Pourquoi est-il pertinent aujourd'hui ?" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-emerald-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-blue-400 uppercase mb-1"> Architecture </label>
+                            <textarea name="architecture_details" rows="3" required placeholder="Décrivez l'architecture technique (ex: Microservices, MVC, RAG, IoT) et le modèle de base de données envisagé (ex: PostgreSQL, MongoDB, volumes de données)..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs focus:border-blue-500 focus:outline-none"></textarea>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label class="block text-[10px] font-bold text-amber-400 uppercase mb-1"> Faisabilité dans le temps</label>
+                                <select name="time_feasibility" required class="w-full px-3 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                                    <option value="3 mois (Court terme - MVP)">3 mois </option>
+                                    <option value="4 à 5 mois (Standard PFE)" selected>4 à 5 mois </option>
+                                    <option value="6 mois (Recherche & Déploiement)">6 mois </option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[10px] font-bold text-purple-400 uppercase mb-1">Stack</label>
+                                <input type="text" name="keywords" required placeholder="Django, React, Docker, PostgreSQL..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/70 p-3.5 rounded-2xl border border-slate-800 text-[11px] text-slate-300 space-y-1">
+                            <p class="font-bold text-amber-300">🔍 Grille d'évaluation SmartSujet :</p>
+                            <p>• <strong>Faisabilité </strong> (délais réalistes vs complexité)</p>
+                            <p>• <strong>Architecture </strong> (clarté des composants techniques)</p>
+                            <p>• <strong>Pertinence </strong> (richesse et cohérence)</p>
+                            <p>• <strong>Impact sociétal réel</strong> (utilité concrète sur le terrain)</p>
+                        </div>
+
+                        <button type="submit" name="submit_subject" class="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg">
+                            🚀 Soumettre & Analyser avec SmartSujet
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-7 glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">📌 Historique de vos Propositions ({{ total_submitted|default:0 }})</h3>
+                        <span class="text-[11px] text-slate-400">1 seul sujet actif autorisé après validation</span>
+                    </div>
+
+                    {% if subjects %}
+                        <div class="space-y-4 max-h-[680px] overflow-y-auto pr-1">
+                            {% for sub in subjects %}
+                                <div class="bg-slate-900/75 p-5 rounded-2xl border {% if sub.status == 'REJECTED' %}border-rose-500/50 bg-rose-950/15{% elif sub.status == 'ASSIGNED' or sub.status == 'ADMIN_VALIDATED' %}border-emerald-500/50{% else %}border-slate-800{% endif %} space-y-3">
+                                    
+                                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+                                        <div class="flex items-center space-x-2">
+                                            {% if sub.status == 'REJECTED' %}
+                                                <span class="text-lg" title="Refusé par l'administrateur">❌</span>
+                                                <h4 class="font-extrabold text-slate-400 line-through text-sm">{{ sub.title }}</h4>
+                                            {% elif sub.status == 'ASSIGNED' or sub.status == 'ADMIN_VALIDATED' %}
+                                                <span class="text-lg" title="Accepté">✅</span>
+                                                <h4 class="font-extrabold text-white text-sm">{{ sub.title }}</h4>
+                                            {% else %}
+                                                <span class="text-xs font-mono bg-white/10 px-2 py-0.5 rounded text-slate-300">#{{ forloop.revcounter }}</span>
+                                                <h4 class="font-extrabold text-white text-sm">{{ sub.title }}</h4>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="flex items-center space-x-2 shrink-0">
+                                            <span class="px-3 py-1 rounded-full text-xs font-extrabold {% if sub.ai_score >= 75 %}bg-emerald-500/20 text-emerald-300 border border-emerald-500/30{% elif sub.ai_score >= 55 %}bg-amber-500/20 text-amber-300 border border-amber-500/30{% else %}bg-rose-500/20 text-rose-300 border border-rose-500/30{% endif %}">
+                                                Score IA : {{ sub.ai_score|default:"0" }}%
+                                            </span>
+                                            {% if sub.status == 'REJECTED' %}
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-rose-500/20 text-rose-300 border border-rose-500/40">Refusé ❌</span>
+                                            {% elif sub.status == 'ADMIN_VALIDATED' %}
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">Accepté ✅</span>
+                                            {% elif sub.status == 'ASSIGNED' %}
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-500 text-slate-950">Encadrant Assigné</span>
+                                            {% else %}
+                                                <span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-slate-800 text-slate-300">En examen Admin</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
+                                    <p class="text-xs text-slate-300 leading-relaxed">{{ sub.abstract }}</p>
+
+                                    <div class="bg-slate-950/80 p-3.5 rounded-xl border border-slate-800 text-[11px] space-y-1.5">
+                                        <p class="text-emerald-300"><strong>✅ Analyse  :</strong> {{ sub.ai_strengths|default:"Architecture et problématique analysées." }}</p>
+                                        <p class="text-amber-300"><strong>⚠️ Recommandations  :</strong> {{ sub.ai_alerts|default:"Veillez à bien documenter le schéma de base de données." }}</p>
+                                        {% if sub.status == 'REJECTED' %}
+                                            <p class="text-rose-400 font-bold pt-1 border-t border-rose-500/20">
+                                                ❌ Notification de refus : {{ sub.admin_comment|default:"Ce thème a été rejeté par l'administration. Veuillez soumettre une nouvelle proposition mieux structurée." }}
+                                            </p>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-16 space-y-3">
+                            <p class="text-3xl">🧠</p>
+                            <p class="text-sm font-bold text-white">Aucun sujet soumis pour l'instant</p>
+                            <p class="text-xs text-slate-400">Remplissez le formulaire multicritères à gauche pour obtenir votre score SmartSujet.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="content-reports" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl">
+                <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-purple-500/20 text-purple-300 border border-purple-500/30 uppercase tracking-wider mb-2">Vérification</span>
+                <h1 class="text-3xl font-extrabold text-white">Dépôt de Rapports & Retours de l'Encadrant</h1>
+                <p class="text-sm text-slate-300 mt-1">Envoyez vos livrables avec une description. Chaque retour de votre encadrant est rattaché à l'identifiant unique (#ID) de votre envoi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+ 
+                <div class="lg:col-span-5 glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl self-start">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">📤 Envoyer un Rapport à l'Encadrant</h3>
+                    <form method="POST" enctype="multipart/form-data" class="space-y-4">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Titre  du Livrable</label>
+                            <input type="text" name="report_title" required placeholder="Ex: Chapitre 1 & 2 - État de l'art et Conception UML" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-emerald-400 uppercase mb-1">Fichier du Rapport </label>
+                            <input type="file" name="report_file" accept=".pdf,.doc,.docx" required class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-slate-200 text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-emerald-500/20 file:text-emerald-300 hover:file:bg-emerald-500/30">
+                        </div>
+
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Description</label>
+                            <textarea name="report_description" rows="3" required placeholder="Précisez les modifications apportées ou les parties à vérifier par votre encadrant..." class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-xs"></textarea>
+                        </div>
+
+                        <button type="submit" name="upload_report" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg">
+                            📨 Transmettre le Document à l'Encadrant
+                        </button>
+                    </form>
+                </div>
+
+                <div class="lg:col-span-7 glass-card p-6 rounded-3xl border border-white/10 space-y-4 shadow-xl">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                        <h3 class="text-base font-bold text-white">📋 Suivi des Envois & Retours de Vérification</h3>
+                        <span class="text-[11px] text-slate-400">Rattachés par #ID d'envoi</span>
+                    </div>
+
+                    {% if reports %}
+                        <div class="space-y-4 max-h-[600px] overflow-y-auto pr-1">
+                            {% for rep in reports %}
+                                <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-3">
+                                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-white/5 pb-2.5">
+                                        <div class="flex items-center space-x-2.5">
+                                            <span class="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono font-extrabold text-xs">
+                                                Envoi #ID-{{ rep.id }}
+                                            </span>
+                                            <span class="font-bold text-white text-xs">{{ rep.file.name }}</span>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 font-mono">📅 {{ rep.uploaded_at|date:"d/m/Y à H:i" }}</span>
+                                    </div>
+
+                                    {% if rep.description %}
+                                        <div class="text-xs text-slate-300 bg-slate-950/50 p-3 rounded-xl border border-slate-800/80">
+                                            <span class="text-[10px] uppercase font-bold text-slate-400 block mb-0.5">Note de l'étudiant :</span>
+                                            {{ rep.description }}
+                                        </div>
+                                    {% endif %}
+
+                                    <div class="p-3.5 rounded-xl border {% if rep.supervisor_comment %}bg-emerald-500/10 border-emerald-500/30{% else %}bg-slate-950/80 border-slate-800{% endif %} text-xs space-y-1">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-extrabold {% if rep.supervisor_comment %}text-emerald-400{% else %}text-amber-400{% endif %}">
+                                                👨‍🏫 Retour de l'encadrant (sur l'envoi #ID-{{ rep.id }}) :
+                                            </span>
+                                            {% if rep.file %}
+                                                <a href="{{ rep.file.url }}" target="_blank" class="text-[10px] underline text-blue-400 hover:text-blue-300">Télécharger le fichier</a>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-slate-200 leading-relaxed">
+                                            {{ rep.supervisor_comment|default:"⏳ En attente de vérification et de commentaire par votre encadrant." }}
+                                        </p>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="text-center py-16 space-y-2">
+                            <p class="text-3xl">📂</p>
+                            <p class="text-sm font-bold text-white">Aucun document envoyé</p>
+                            <p class="text-xs text-slate-400">Déposez votre premier rapport PDF ou Word à gauche pour recevoir les retours de votre encadrant.</p>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div id="content-group" class="dashboard-section space-y-6 hidden">
+            {% if assigned_supervisor %}
+                <div class="glass-card rounded-3xl border border-white/10 shadow-2xl overflow-hidden flex flex-col h-[75vh]">
+                    
+                    <div class="bg-slate-900/95 px-6 py-4 border-b border-white/10 flex items-center justify-between">
+                        <div class="flex items-center space-x-3.5">
+                            <div class="w-11 h-11 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-700 flex items-center justify-center text-slate-950 font-extrabold text-base shadow-lg">
+                                💬
+                            </div>
+                            <div>
+                                <h2 class="text-sm font-extrabold text-white flex items-center space-x-2">
+                                    <span>Groupe PFE — {{ assigned_supervisor.get_full_name|default:assigned_supervisor.username }}</span>
+                                    <span class="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">Actif</span>
+                                </h2>
+                                <p class="text-[11px] text-slate-400 truncate max-w-xl">
+                                    👨‍🏫 Encadrant + {{ group_members|length|default:1 }} étudiant(s) assigné(s) :
+                                    {% for member in group_members %}
+                                        {{ member.first_name|default:member.username }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-slate-400 hidden sm:inline">Tout le groupe voit et peut répondre</span>
+                    </div>
+
+                    <div id="whatsappChatBox" class="flex-1 p-6 overflow-y-auto space-y-4 bg-slate-950/50">
+                        {% if group_messages %}
+                            {% for msg in group_messages %}
+                                {% if msg.sender == request.user %}
+ 
+                                <div class="flex justify-end">
+                                        <div class="max-w-md bg-emerald-600/30 border border-emerald-500/40 rounded-2xl rounded-tr-none px-4 py-2.5 text-xs space-y-1 shadow-md">
+                                            <div class="flex items-center justify-between space-x-4">
+                                                <span class="font-extrabold text-emerald-300 text-[10px]">Vous</span>
+                                                <span class="text-[9px] text-slate-400 font-mono">{{ msg.created_at|date:"d/m H:i" }}</span>
+                                            </div>
+                                            <p class="text-white leading-relaxed">{{ msg.content }}</p>
+                                        </div>
+                                    </div>
+                                {% elif msg.sender.role == 'SUPERVISOR' %}
+ 
+                                <div class="flex justify-start">
+                                        <div class="max-w-md bg-amber-500/15 border border-amber-500/40 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs space-y-1 shadow-md">
+                                            <div class="flex items-center justify-between space-x-4">
+                                                <span class="font-extrabold text-amber-300 text-[10px]">👨‍🏫 Encadrant • {{ msg.sender.get_full_name|default:msg.sender.username }}</span>
+                                                <span class="text-[9px] text-slate-400 font-mono">{{ msg.created_at|date:"d/m H:i" }}</span>
+                                            </div>
+                                            <p class="text-slate-100 leading-relaxed">{{ msg.content }}</p>
+                                        </div>
+                                    </div>
+  
+                                    {% else %}
+                                    <div class="flex justify-start">
+                                        <div class="max-w-md bg-slate-900 border border-slate-800 rounded-2xl rounded-tl-none px-4 py-2.5 text-xs space-y-1 shadow-md">
+                                            <div class="flex items-center justify-between space-x-4">
+                                                <span class="font-bold text-purple-300 text-[10px]">🎓 {{ msg.sender.get_full_name|default:msg.sender.username }}</span>
+                                                <span class="text-[9px] text-slate-400 font-mono">{{ msg.created_at|date:"d/m H:i" }}</span>
+                                            </div>
+                                            <p class="text-slate-200 leading-relaxed">{{ msg.content }}</p>
+                                        </div>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <div class="h-full flex flex-col items-center justify-center text-center space-y-2 opacity-75">
+                                <p class="text-3xl">👋</p>
+                                <p class="text-sm font-bold text-white">Bienvenue dans le groupe de {{ assigned_supervisor.get_full_name|default:assigned_supervisor.username }}</p>
+                                <p class="text-xs text-slate-400 max-w-md">Écrivez le premier message ci-dessous pour échanger avec votre encadrant et tous les étudiants supervisés par lui.</p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST" class="bg-slate-900/95 p-4 border-t border-white/10 flex items-center gap-3">
+                        {% csrf_token %}
+                        <input type="text" name="message_content" required placeholder="Écrire un message à tout le groupe..." class="flex-1 px-4 py-3 rounded-2xl bg-slate-950 border border-slate-800 text-white text-xs focus:outline-none focus:border-emerald-500">
+                        <button type="submit" name="send_group_message" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-6 py-3 rounded-2xl text-xs transition shadow-lg shrink-0">
+                            Envoyer ➤
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="glass-card p-12 rounded-3xl border border-white/10 text-center space-y-3 shadow-2xl">
+                    <p class="text-4xl">🔒</p>
+                    <h2 class="text-xl font-extrabold text-white">Groupe WhatsApp en attente d'activation</h2>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        Votre salon de discussion de groupe se débloquera automatiquement dès que l'administrateur vous aura assigné un encadrant. Vous pourrez alors discuter avec lui et avec tous les étudiants qu'il supervise.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        
+        <div id="content-defense" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 shadow-2xl">
+                <div>
+                    <span class="inline-block px-3 py-1 rounded-full text-xs font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase tracking-wider mb-2">Session Officielle PFE</span>
+                    <h1 class="text-3xl font-extrabold text-white">Ma Soutenance & Procès-Verbal (PV)</h1>
+                    <p class="text-sm text-slate-300 mt-1">Consultez votre salle, votre créneau horaire, la composition de votre jury et téléchargez votre PV officiel dès publication par l'administration.</p>
+                </div>
+                {% if student_defense and project %}
+                    <a href="{% url 'scheduling:download_pv' project.id %}" target="_blank" class="bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-slate-950 font-extrabold px-6 py-4 rounded-2xl shadow-2xl transition text-xs flex items-center space-x-2 shrink-0">
+                        <span>📄</span>
+                        <span>Télécharger mon PV Officiel (PDF)</span>
+                    </a>
+                {% endif %}
+            </div>
+
+            {% if student_defense and project %}
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Détails Date, Heure, Salle & Projet -->
+                    <div class="lg:col-span-2 glass-card p-8 rounded-3xl border border-emerald-500/30 shadow-xl space-y-6">
+                        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                            <div>
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Programmation Validée par OR-Tools</span>
+                                <h3 class="text-xl font-extrabold text-white mt-1">{{ project.subject.title }}</h3>
+                            </div>
+                            <span class="px-3.5 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                ✅ Soutenance Planifiée
+                            </span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-1">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">📅 Jour de Passage</p>
+                                <p class="text-base font-extrabold text-amber-300 font-mono">
+                                    {{ student_defense.defense_date|date:"d/m/Y" }}
+                                </p>
+                            </div>
+                            <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-1">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">⏰ Heure de Passage</p>
+                                <p class="text-base font-extrabold text-emerald-400 font-mono">
+                                    {{ student_defense.defense_date|date:"H:i" }}
+                                </p>
+                            </div>
+                            <div class="bg-slate-900/80 p-5 rounded-2xl border border-slate-800 space-y-1">
+                                <p class="text-[10px] text-slate-400 uppercase font-bold">🏛️ Salle Assignée</p>
+                                <p class="text-sm font-extrabold text-purple-300">
+                                    {{ student_defense.room.name|default:"Salle Principale PFE" }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950/70 p-5 rounded-2xl border border-slate-800 space-y-2 text-xs">
+                            <p class="font-bold text-white uppercase text-[10px] tracking-wider">📌 Instructions pour le jour de la soutenance :</p>
+                            <p class="text-slate-300 leading-relaxed">
+                                Veuillez vous présenter dans la salle <strong>{{ student_defense.room.name|default:"assignée" }}</strong> au moins <strong>30 minutes avant</strong> votre heure de passage muni(e) de votre présentation et de votre PV officiel imprimé.
+                            </p>
+                        </div>
+                    </div>
+
+                    
+                    <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl flex flex-col justify-between space-y-6">
+                        <div class="space-y-4">
+                            <div class="flex items-center justify-between border-b border-white/10 pb-3">
+                                <h3 class="text-base font-bold text-white">⚖️ Membres de votre Jury</h3>
+                                <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                    {{ student_defense.jury_members.count }} membre(s)
+                                </span>
+                            </div>
+
+                            <div class="space-y-3">
+                                {% for jury in student_defense.jury_members.all %}
+                                    <div class="bg-slate-900/85 p-4 rounded-2xl border {% if jury == project.supervisor %}border-emerald-500/40{% else %}border-amber-500/30{% endif %} space-y-1.5">
+                                        <div class="flex items-center justify-between">
+                                            <span class="font-extrabold text-white text-xs">
+                                                👨‍🏫 {{ jury.get_full_name|default:jury.username }}
+                                            </span>
+                                            {% if jury == project.supervisor %}
+                                                <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[9px] font-extrabold border border-emerald-500/30">
+                                                    Encadrant / Rapporteur
+                                                </span>
+                                            {% else %}
+                                                <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 text-[9px] font-extrabold border border-amber-500/30">
+                                                    Membre du Jury / Examinateur
+                                                </span>
+                                            {% endif %}
+                                        </div>
+                                        <p class="text-[11px] text-slate-400 font-mono">{{ jury.email }}</p>
+                                    </div>
+                                {% empty %}
+                                    <p class="text-xs text-slate-400">Encadrant principal : {{ project.supervisor.get_full_name|default:project.supervisor.username }}</p>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <a href="{% url 'scheduling:download_pv' project.id %}" target="_blank" class="w-full py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold text-xs text-center transition shadow-lg block">
+                            📄 Télécharger le PV de Soutenance (PDF)
+                        </a>
+                    </div>
+                </div>
+            {% else %}
+                <div class="glass-card p-12 rounded-3xl border border-white/10 text-center space-y-3 shadow-2xl">
+                    <p class="text-4xl">⏳</p>
+                    <h2 class="text-xl font-extrabold text-white">Planning de Soutenance en attente de publication</h2>
+                    <p class="text-xs text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        Votre date de passage, votre salle, la liste de vos jurys ainsi que votre <strong>Procès-Verbal (PV) officiel téléchargeable</strong> s'afficheront automatiquement ici dès que l'administration aura lancé la planification officielle.
+                    </p>
+                </div>
+            {% endif %}
+        </div>
+
+        <div id="content-profile" class="dashboard-section space-y-8 hidden">
+            <div class="glass-card p-8 rounded-3xl border border-white/10 shadow-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                <div class="flex items-center space-x-4">
+                    <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-400 to-teal-700 flex items-center justify-center text-slate-950 font-extrabold text-2xl shadow-xl">
+                        {{ request.user.first_name|default:request.user.username|slice:":1"|upper }}
+                    </div>
+                    <div>
+                        <span class="inline-block px-3 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 uppercase tracking-wider mb-1">Fiche Individuelle</span>
+                        <h1 class="text-2xl font-extrabold text-white">{{ request.user.get_full_name|default:request.user.username }}</h1>
+                        <p class="text-xs text-slate-400 font-mono">{{ request.user.email }}</p>
+                    </div>
+                </div>
+                <span class="px-4 py-2 rounded-2xl bg-slate-900 border border-slate-800 text-emerald-400 font-mono font-extrabold text-xs">
+                    Matricule : {{ request.user.matricule|default:"ICTU2026" }}
+                </span>
+            </div>
+
+         
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+         
+                <div class="lg:col-span-2 glass-card p-8 rounded-3xl border border-white/10 shadow-xl space-y-6">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">📋 Mes Informations Académiques & Personnelles</h3>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 text-xs">
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Nom Complet</p>
+                            <p class="text-sm font-bold text-white mt-1">{{ request.user.get_full_name|default:request.user.username }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Matricule Institutionnel</p>
+                            <p class="text-sm font-mono font-bold text-emerald-400 mt-1">{{ request.user.matricule|default:"Non défini" }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Adresse E-mail</p>
+                            <p class="text-sm font-semibold text-white mt-1">{{ request.user.email }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Filière Académique</p>
+                            <p class="text-sm font-bold text-purple-300 mt-1">{{ request.user.filiere|default:"Génie Logiciel (SEN)" }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Numéro de Téléphone</p>
+                            <p class="text-sm font-semibold text-white mt-1">{{ request.user.phone_number|default:"Non renseigné" }}</p>
+                        </div>
+                        <div class="bg-slate-900/60 p-4 rounded-2xl border border-slate-800">
+                            <p class="text-[10px] text-slate-400 uppercase font-bold">Quartier & Âge</p>
+                            <p class="text-sm font-semibold text-white mt-1">{{ request.user.quartier|default:"Non renseigné" }} {% if request.user.age %}({{ request.user.age }} ans){% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass-card p-6 rounded-3xl border border-white/10 shadow-xl space-y-4">
+                    <h3 class="text-base font-bold text-white border-b border-white/10 pb-3">✏️ Mettre à jour mes coordonnées</h3>
+                    <form method="POST" class="space-y-3 text-xs">
+                        {% csrf_token %}
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Téléphone</label>
+                            <input type="text" name="phone_number" value="{{ request.user.phone_number|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Quartier de résidence</label>
+                            <input type="text" name="quartier" value="{{ request.user.quartier|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <div>
+                            <label class="block text-[10px] font-bold text-slate-300 uppercase mb-1">Âge</label>
+                            <input type="number" name="age" value="{{ request.user.age|default:'' }}" class="w-full px-3.5 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white">
+                        </div>
+                        <button type="submit" name="update_profile" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold py-2.5 rounded-xl transition shadow-lg mt-2">
+                            Enregistrer les modifications
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
+<script>
+    let sidebarOpen = true;
+    function toggleSidebar() {
+        const sidebar = document.getElementById('appSidebar');
+        const mainContent = document.getElementById('mainContent');
+        const openBtn = document.getElementById('openSidebarBtn');
+
+        sidebarOpen = !sidebarOpen;
+        if (sidebarOpen) {
+            sidebar.classList.remove('-translate-x-full');
+            sidebar.classList.add('translate-x-0');
+            mainContent.classList.add('md:ml-72');
+            openBtn.classList.add('hidden');
+            openBtn.classList.remove('flex');
+        } else {
+            sidebar.classList.add('-translate-x-full');
+            sidebar.classList.remove('translate-x-0');
+            mainContent.classList.remove('md:ml-72');
+            openBtn.classList.remove('hidden');
+            openBtn.classList.add('flex');
+        }
+    }
+
+    function switchSection(sectionId, event) {
+        if (event) event.preventDefault();
+        const sections = ['home', 'submit', 'reports', 'group', 'defense', 'profile'];
+        sections.forEach(sec => {
+            const el = document.getElementById('content-' + sec);
+            if (el) el.classList.add('hidden');
+        });
+        
+        const target = document.getElementById('content-' + sectionId);
+        if (target) target.classList.remove('hidden');
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-semibold transition-all text-slate-300 hover:bg-white/5 hover:text-white border border-transparent";
+            if (link.getAttribute('href') === '#' + sectionId) {
+                link.className = "sidebar-link flex items-center justify-between px-4 py-3.5 rounded-2xl text-xs font-bold transition-all bg-gradient-to-r from-emerald-500/25 to-teal-500/10 text-emerald-300 border border-emerald-500/30 shadow-lg";
+            }
+        });
+
+        localStorage.setItem('activeStudentTab', sectionId);
+
+        if (sectionId === 'group') {
+            const chatBox = document.getElementById('whatsappChatBox');
+            if (chatBox) chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        if (window.innerWidth < 768 && sidebarOpen) {
+            toggleSidebar();
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const savedTab = localStorage.getItem('activeStudentTab');
+        if (savedTab) {
+            switchSection(savedTab, null);
+        }
+    });
+</script>
+{% endblock %}
